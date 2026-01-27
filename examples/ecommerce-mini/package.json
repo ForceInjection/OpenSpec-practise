@@ -1,0 +1,11 @@
+{
+  "name": "ecommerce-mini",
+  "version": "1.0.0",
+  "description": "Node.js implementation of ecommerce-mini based on OpenSpec",
+  "type": "module",
+  "scripts": {
+    "test": "node --test __tests__/*.spec.js",
+    "start": "node src/http/server.js",
+    "start:prod": "node src/http/server.prod.js"
+  }
+}

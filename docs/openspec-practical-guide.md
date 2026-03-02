@@ -5,6 +5,10 @@
 OpenSpec 是一种以规格（Spec）为中心的工程方法与工具链，旨在通过统一的结构化文档与自动化工作流，提升复杂系统在设计到交付全周期的确定性与可验证性。本文结合一个小型电商网站的完整案例，演示从架构设计、系统设计、模块设计、接口设计，到单元测试、接口测试、集成测试、性能测试的全流程，以促进在真实项目中落地。
 
 > **进阶阅读**：关于本案例的 AI 协作全流程复盘（Prompt 设计与交互记录）及 Python 版本的跨语言复刻验证，请参考 [OpenSpec 实战指南：AI 辅助软件工程全流程深度复盘](./openspec-ai-workflow-analysis.md)。
+>
+> **CLI 参考手册**：关于 OpenSpec CLI 的完整命令说明（init、validate、archive 等），请参考 [OpenSpec使用手册](./OpenSpec使用手册.md)。
+>
+> **培训材料**：本项目提供了配套的演示文稿 [OpenSpec 使用手册](./OpenSpec%20使用手册.pptx)，适合用于团队培训与技术分享。
 
 ---
 
@@ -87,9 +91,34 @@ openspec init --tools none
 ```markdown
 # Proposal: Ecommerce Mini MVP
 
-## Intent
+## Why
 
-构建一个最小可用的电商系统，演示 OpenSpec 端到端流程。
+### Background
+
+本项目起源于社区关于 AI 编程的深度探讨，需要一个完整的实战案例来演示 OpenSpec 规范在 AI 辅助编程中的具体应用。
+
+### Problem Statement
+
+需要一个规范化的方式来确保人与 AI 对需求达成一致，同时保持代码与文档的同步。
+
+### Alternatives Considered
+
+1. **直接编写代码**: 快速但缺乏文档支撑。
+2. **传统需求文档**: 与代码分离，容易过时。
+3. **OpenSpec 规范驱动**: 先定义规范，再编写代码，保持一致性 ✓ 已选择此方案。
+
+## What Changes
+
+### New Resources Added
+
+- **领域模型**: Product、User、Cart、Order 等核心实体。
+- **API 接口**: 商品、购物车、订单、支付等 RESTful 接口。
+
+### New Capabilities
+
+- 商品列表查询与上架。
+- 购物车管理（添加、移除）。
+- 下单结算与库存扣减。
 
 ## Goals (SLO)
 
@@ -128,6 +157,24 @@ openspec init --tools none
 
 - **自动化测试**：运行单元测试与集成测试，确保实现符合 Spec。
 - **基线度量**：在开发阶段就运行性能基准测试 (`performance.spec.js`)，确保 SLO 达标。
+- **规范验证**：使用 `openspec validate` 命令验证规范文档格式是否正确。
+
+```bash
+# 验证变更规范
+openspec validate v1-mvp
+
+# 验证成功输出
+✓ Change 'v1-mvp' is valid
+```
+
+验证会检查以下内容：
+
+- `proposal.md` 是否包含 `## Why` 和 `## What Changes` 章节
+- `specs/` 目录结构是否正确（必须有能力文件夹）
+- 每个 spec.md 是否有 Delta Header（`## ADDED/MODIFIED/REMOVED Requirements`）
+- 每个需求是否有正确的 `### Requirement:` 格式和 `#### Scenario:` 块
+
+更多 CLI 命令请参考 [OpenSpec使用手册](./OpenSpec使用手册.md)。
 
 ### 3.6 归档与沉淀
 
@@ -213,17 +260,52 @@ openspec init --tools none
 
 ### 6.2 数据模型
 
-在 OpenSpec 中，我们首先在 `specs/domain/spec.md` 中定义模型。为了便于开发者理解，这里直接使用了 TypeScript Interface 语法作为通用描述语言：
+在 OpenSpec 中，我们首先在 `specs/domain/spec.md` 中定义模型。规范文件必须使用 Delta Header + Requirement + Scenario 格式：
 
 **Spec 定义 (`specs/domain/spec.md`)**:
 
-```typescript
-interface Product {
-  id: string; // 格式：prod_xxxx
-  name: string;
-  priceCents: number; // Integer, min 0
-  stock: number; // Integer, min 0
-}
+```markdown
+# Domain Specification
+
+## Overview
+
+定义核心业务实体与规则，不依赖任何外部框架。
+
+## ADDED Requirements
+
+### Requirement: 商品实体定义
+
+系统 SHALL 定义商品实体，包含唯一标识、名称、价格和库存。
+
+**Priority**: P0 (Critical)
+
+**Rationale**: 商品是电商系统的核心实体，是所有交易的基础。
+
+#### Scenario: 创建有效商品
+
+Given 需要创建新商品
+When 提供商品信息 { id, name, priceCents, stock }
+Then 商品实体创建成功
+And id 格式为 prod_xxxx
+And priceCents >= 0
+And stock >= 0
+
+---
+
+### Requirement: 库存非负校验
+
+库存扣减后 MUST NOT 为负数。
+
+**Priority**: P0 (Critical)
+
+**Rationale**: 库存为负会导致超卖，影响业务准确性。
+
+#### Scenario: 库存不足时扣减
+
+Given 商品库存为 5
+When 尝试扣减 6 个库存
+Then 抛出 OUT_OF_STOCK 错误
+And 库存保持不变
 ```
 
 **代码实现 (`src/domain/types.js` / JSDoc)**:
@@ -284,31 +366,60 @@ OpenSpec 的核心优势在于使用 **Markdown** 编写可读性极强的规格
 ```markdown
 # API Specification
 
-## Endpoints
+## Overview
 
-### GET /api/products
+定义对外 RESTful 接口契约，涵盖商品、购物车、订单、支付等核心功能。
 
-获取所有商品列表。
+## ADDED Requirements
 
-- **Response 200**: `Product[]`
+### Requirement: 商品列表查询
 
-### POST /api/cart/items
+系统 SHALL 提供商品列表查询接口，返回所有可用商品。
 
-添加商品到购物车。
+**Priority**: P0 (Critical)
 
-- **Body**: `{ productId: string, quantity: number }`
-- **Response 200**: Updated `Cart`
+**Rationale**: 商品浏览是电商系统的核心入口功能。
 
-### POST /api/orders
+#### Scenario: 获取所有商品
 
-结算购物车生成订单。
+Given 系统中存在商品数据
+When 用户请求 GET /api/products
+Then 返回状态码 200
+And 返回商品数组 Product[]
 
-- **Body**: `{ userId: string }`
-- **Response 201**: `Order`
-- **Response 409**: Stock insufficient (库存不足)
+---
+
+### Requirement: 订单创建
+
+系统 SHALL 支持结算购物车生成订单，处理库存扣减。
+
+**Priority**: P0 (Critical)
+
+**Rationale**: 订单创建是交易的核心流程。
+
+#### Scenario: 成功创建订单
+
+Given 用户购物车中有商品
+And 商品库存充足
+When 发送 POST /api/orders 携带 { userId }
+Then 返回状态码 201
+And 返回新创建的订单 Order
+
+#### Scenario: 创建订单时库存不足
+
+Given 用户购物车中有商品
+And 商品库存不足
+When 发送 POST /api/orders 携带 { userId }
+Then 返回状态码 409
+And 返回错误信息 "Stock insufficient"
 ```
 
-> **注意**：这里的 `Product[]` 和 `Order` 引用了 `domain/spec.md` 中定义的数据模型，保持了定义的一致性。
+> **注意**：
+>
+> - 必须使用 `## ADDED/MODIFIED/REMOVED Requirements` 作为 Delta Header。
+> - 每个需求使用 `### Requirement: <标题>` 格式，描述中必须包含 `SHALL` 或 `MUST`。
+> - 每个需求至少包含一个 `#### Scenario:` 块，使用 Gherkin 格式（Given/When/Then）。
+> - 这里的 `Product[]` 和 `Order` 引用了 `domain/spec.md` 中定义的数据模型，保持了定义的一致性。
 
 ## 9. 规范驱动实现
 
@@ -328,19 +439,30 @@ OpenSpec 的核心优势在于使用 **Markdown** 编写可读性极强的规格
 ### 9.2 目录结构映射
 
 ```text
-examples/
-├── openspec/                 <-- 对应 Spec Source of Truth (共享规格)
-│   └── changes/v1-mvp/...
-├── ecommerce-mini/           <-- Node.js Implementation
-│   └── src/
-│       ├── domain/types.js   <-- 对应 Spec 中的 Data Models
-│       ├── services/         <-- 对应 Spec 中的 Business Rules
-│       ├── http/server.js    <-- 对应 Spec 中的 API Definitions
-│       └── persist/          <-- 对应 Design 中的 Storage Strategy
-└── ecommerce-mini-python/    <-- Python Implementation
+OpenSpec-practise/
+├── docs/                            <-- 文档目录
+│   ├── OpenSpec使用手册.md          <-- OpenSpec 使用手册
+│   ├── openspec-practical-guide.md  <-- 实战指南（本文档）
+│   └── openspec-ai-workflow-analysis.md  <-- AI 协作流程分析
+├── examples/
+│   ├── openspec/                    <-- OpenSpec 规范目录
+│   │   └── changes/v1-mvp/          <-- MVP 变更规范
+│   │       ├── proposal.md          <-- 对应提案文档
+│   │       ├── design.md            <-- 对应设计文档
+│   │       ├── tasks.md             <-- 对应任务清单
+│   │       └── specs/
+│   │           ├── api/spec.md      <-- 对应 API 规范
+│   │           └── domain/spec.md   <-- 对应领域模型规范
+│   ├── ecommerce-mini/              <-- Node.js Implementation
+│   │   └── src/
+│   │       ├── domain/types.js      <-- 对应 Spec 中的 Data Models
+│   │       ├── services/            <-- 对应 Spec 中的 Business Rules
+│   │       ├── http/server.js       <-- 对应 Spec 中的 API Definitions
+│   │       └── persist/             <-- 对应 Design 中的 Storage Strategy
+│   └── ecommerce-mini-python/       <-- Python Implementation
 ```
 
-### 9.2 代码实现示例
+### 9.3 代码实现示例
 
 **Controller 层 (`src/http/server.js`)**:
 

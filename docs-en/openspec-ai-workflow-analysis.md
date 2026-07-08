@@ -22,7 +22,7 @@ At this stage, the AI does not rush to write concrete code. Instead, it first pe
 
 1. **Architectural Design**: The AI analyzes the core contexts of the e-commerce system: Catalog, User, Cart, Order, Payment;
 2. **Boundary Definition**: Establishes a layered architecture, separating the HTTP interface layer, application service layer, and infrastructure layer (Repository);
-3. **Spec Output**: Under `openspec/changes/v1-mvp/`, generates `proposal.md`, `design.md`, `specs/`, and `tasks.md`, clearly defining domain boundaries, SLO metrics, and API contracts, including:
+3. **Spec Output**: Under `openspec/changes/archive/2025-01-27-v1-mvp/` (archived), generates `proposal.md`, `design.md`, `specs/`, and `tasks.md`, clearly defining domain boundaries, SLO metrics, and API contracts, including:
    - **Proposal**: The goal is to build a highly testable, low-latency e-commerce demo.
    - **Design**: Data flow between modules (User -> Cart -> Order).
    - **Spec**: HTTP interface route definitions (e.g., `POST /api/orders`), error code conventions (`OUT_OF_STOCK`), and non-functional metrics (p99 < 100ms).
@@ -147,7 +147,7 @@ One of OpenSpec's core values is **Language Agnostic**. To verify this, we docum
 
 **User Prompt**:
 
-> Please read [domain-model/spec.md](../examples/openspec/changes/v1-mvp/specs/domain-model/spec.md).
+> Please read [domain-model/spec.md](../openspec/changes/archive/2025-01-27-v1-mvp/specs/domain-model/spec.md). (Note: v1-mvp has been archived to `changes/archive/`)
 > Based on this Spec, please define Domain Models using Python's Pydantic library.
 > Requirements:
 >
@@ -198,7 +198,7 @@ _Note: `alias` is used to decouple Python naming conventions (snake_case) from t
 
 **User Prompt**:
 
-> Based on [src/domain/models.py](../examples/ecommerce-mini-python/src/domain/models.py) and [design.md](../examples/openspec/changes/v1-mvp/design.md), please implement the Service layer.
+> Based on [src/domain/models.py](../examples/ecommerce-mini-python/src/domain/models.py) and [design.md](../openspec/changes/archive/2025-01-27-v1-mvp/design.md), please implement the Service layer. (Note: v1-mvp has been archived)
 > Include three services:
 >
 > 1. `CatalogService`: Handles inventory deduction (atomicity simulation).
@@ -353,8 +353,8 @@ it achieves a smooth evolution from "toy demo" to "production-grade system." In 
 
 - OpenSpec CLI Reference: [OpenSpec User Manual](./openspec-user-manual.md) (init, validate, archive, and other command details)
 - Original Spec Guide: [openspec-practical-guide.md](./openspec-practical-guide.md)
-- OpenSpec Project Config: `examples/openspec/config.yaml` (tech stack, architectural constraints, and rules, auto-injected into every AI planning request)
-- OpenSpec Spec Files: `examples/openspec/changes/v1-mvp/`
+- OpenSpec Project Config: `openspec/config.yaml` (tech stack, architectural constraints, and rules, auto-injected into every AI planning request)
+- OpenSpec Spec Files: `openspec/changes/archive/2025-01-27-v1-mvp/` (archived)
   - `proposal.md`: Change proposal
   - `design.md`: Architectural design
   - `specs/catalog-management/spec.md`: Catalog management spec

@@ -16,9 +16,16 @@
 
 ## 项目结构
 
-本项目主要由以下四个核心模块构成：
+本项目主要由以下五个核心模块构成：
 
-### 1. 文档
+### 1. AI 工具配置
+
+通过 `openspec init --tools claude` 生成的 AI 协作命令与技能，位于 `.claude/`。
+
+- **`.claude/commands/opsx/`**: 斜杠命令定义（`/opsx:explore`、`/opsx:propose`、`/opsx:apply`、`/opsx:sync`、`/opsx:archive`）。
+- **`.claude/skills/`**: 对应的 AI 技能文件（SKILL.md），定义每步操作的详细指令。
+
+### 2. 文档
 
 存放 OpenSpec 的理论分析与实践指南，帮助理解规范背后的思想与工作流。
 
@@ -37,7 +44,7 @@
 
 ---
 
-### 2. 示例代码
+### 3. 示例代码
 
 基于电商场景 (E-commerce) 的多语言最小化实现 (MVP)，展示 OpenSpec 规范如何驱动代码落地。
 
@@ -56,14 +63,15 @@
   - `src/repo`: 内存数据存储。
   - `tests`: Pytest 测试套件。
 
-### 3. OpenSpec 规范
+### 4. OpenSpec 规范
 
-展示 SDD 工作流的完整规范文件，存放于 `examples/openspec/`。
+SDD 工作流的完整规范文件，统一存放于 `openspec/`。
 
-- **`examples/openspec/config.yaml`**: 项目上下文配置（技术栈、约定规则等），自动注入每次 AI 规划请求。
-- **`examples/openspec/changes/v1-mvp/`**: MVP 版本的完整变更规范（已归档）。
+- **`openspec/config.yaml`**: 项目上下文配置（技术栈、约定规则、store/references 支持），自动注入每次 AI 规划请求。
+- **`openspec/specs/`**: 归档后的主规范（cart-management、catalog-management、order-management、payment、domain-model、error-handling）。
+- **`openspec/changes/archive/2025-01-27-v1-mvp/`**: MVP 版本的完整变更规范（已归档）。
   - `proposal.md`: 变更提案（Why / What Changes / Capabilities）。
-  - `design.md`: 系统架构设计（分层架构与数据流）。
+  - `design.md`: 系统架构设计。
   - `tasks.md`: 实施任务清单。
   - `specs/domain-model/spec.md`: 核心领域模型规范。
   - `specs/catalog-management/spec.md`: 商品管理规范。
@@ -71,9 +79,8 @@
   - `specs/order-management/spec.md`: 订单管理规范。
   - `specs/payment/spec.md`: 支付规范。
   - `specs/error-handling/spec.md`: 错误处理规范。
-- **`examples/openspec/specs/`**: 归档后的主规范（已从 v1-mvp 归档合并）。
 
-### 4. 测试数据
+### 5. 测试数据
 
 示例项目使用的测试数据文件。
 
@@ -86,13 +93,14 @@
 
 ## 核心特性
 
-本项目演示了以下 OpenSpec 核心特性：
+本项目基于 **OpenSpec v1.5.0**，演示了以下核心特性：
 
+- **探索优先（Explore First）**: `/opsx:explore` 作为思考伙伴，在编写任何规范或代码之前先调查代码库、权衡选项、澄清需求——零成本的低风险探索。
 - **规范驱动开发**: 先定义规范，再编写代码，确保 AI 与人对需求达成一致。
-- **多语言实现**: 使用相同的规范驱动 Node.js 和 Python 两套实现。
+- **流式迭代（Fluid Workflow）**: Propose → Apply → Archive 各阶段不再锁死。可随时回溯修改规范，explore 可穿插在任意阶段。
+- **双语言实现**: 使用相同的规范驱动 Node.js (零依赖) 和 Python (FastAPI + Pydantic) 两套实现。
 - **完整测试覆盖**: 单元测试、集成测试、性能测试。
-- **生产级扩展**: 持久化存储、鉴权、幂等性、可观测性。
-- **AI 深度协作**: 通过 `openspec init` 生成 OPSX 斜杠命令（`/opsx:propose`、`/opsx:apply` 等），支持与 20+ AI 编程助手（如 Cursor、Claude Code、Junie、Lingma 等）的标准化协作工作流。
+- **Stores (Beta)**: 支持跨仓库规划。将规划集中在一个独立的 store 仓库中，多个代码仓库通过 `references` 引用只读上下文。
 
 ---
 
@@ -122,21 +130,23 @@ context: |
 
 下表展示了 OpenSpec 核心组件与 DDD 产出物的具体映射关系：
 
-| OpenSpec 规范结构 | 对应的 DDD 产出物 | 描述与说明 |
-| :--- | :--- | :--- |
-| **领域（Domain）** | **限界上下文（Bounded Context）** | 一个领域目录对应一个限界上下文。 |
-| **需求（Requirement）** | **领域服务（Domain Service）** / **命令（Command）** | 描述一个核心业务功能或操作。 |
-| **场景（Scenario）** | **聚合（Aggregate）行为** | 使用 Given/When/Then 格式精确描述聚合行为。 |
-| **技术设计（Design）** | **应用服务（Application Service）** | 协调多个领域服务，管理事务与安全。 |
-| **实施任务（Tasks）** | **战术设计待办列表** | 将实体、值对象、仓储接口等具体实现任务化。 |
+| OpenSpec 规范结构       | 对应的 DDD 产出物                                    | 描述与说明                                  |
+| :---------------------- | :--------------------------------------------------- | :------------------------------------------ |
+| **领域（Domain）**      | **限界上下文（Bounded Context）**                    | 一个领域目录对应一个限界上下文。            |
+| **需求（Requirement）** | **领域服务（Domain Service）** / **命令（Command）** | 描述一个核心业务功能或操作。                |
+| **场景（Scenario）**    | **聚合（Aggregate）行为**                            | 使用 Given/When/Then 格式精确描述聚合行为。 |
+| **技术设计（Design）**  | **应用服务（Application Service）**                  | 协调多个领域服务，管理事务与安全。          |
+| **实施任务（Tasks）**   | **战术设计待办列表**                                 | 将实体、值对象、仓储接口等具体实现任务化。  |
 
 ### 3. 工作流驱动的生命周期
 
-OpenSpec 的工作流与 DDD 的迭代建模高度契合，特别强调存量优先的重构能力。
+OpenSpec v1.5.0 的工作流与 DDD 的迭代建模高度契合，特别强调探索优先和存量优先的重构能力。
 
-- **提案（Propose）**：使用 `/opsx:propose` 快速初始化变更，沉淀领域建模结论。
-- **实施（Apply）**：利用 AI 依据规范（需求与场景）进行代码实现与自动化验证。
-- **归档（Archive）**：通过 `openspec archive` 将增量规范合并至主规范，确保领域知识的单一事实来源。
+- **探索（Explore）**：使用 `/opsx:explore` 以零成本调查代码库、对比方案、澄清需求。DDD 的「战略风暴」可在探索阶段自然展开。
+- **提案（Propose）**：使用 `/opsx:propose` 初始化变更，通过 `openspec instructions` 动态获取模板和上下文，沉淀领域建模结论。
+- **实施（Apply）**：利用 AI 依据规范进行代码实现与自动化验证，可随时回溯修改规范，不锁死阶段。
+- **同步（Sync）**：归档前将增量 spec 变更合并至主规范目录。
+- **归档（Archive）**：通过 `openspec archive` 将变更移至 `changes/archive/`，确保领域知识的单一事实来源。
 
 ---
 
@@ -184,8 +194,9 @@ python -m uvicorn src.api.server:app --reload
 1. **入门**: 阅读 [OpenSpec使用手册](docs/openspec-user-manual.md)，了解 OpenSpec 的基本概念和使用方法。
 2. **实践**: 阅读 [OpenSpec 实战指南](docs/openspec-practical-guide.md)，理解如何在实际项目中应用。
 3. **深入**: 阅读 [OpenSpec 实战指南：AI 辅助软件工程全流程深度复盘](docs/openspec-ai-workflow-analysis.md)，了解 AI 协作的最佳实践。
-4. **动手**: 运行 `examples/ecommerce-mini` 和 `examples/ecommerce-mini-python`，体验规范驱动开发。
-5. **研究**: 查看 `examples/openspec/changes/v1-mvp/` 下的规范文件，学习如何编写规范。
+4. **动手**: 运行 `examples/ecommerce-mini` 和 `examples/ecommerce-mini-python`，体验规范驱动开发。两个实现均为同一套 OpenSpec 规范的产物。
+5. **实践 v1.5.0 工作流**: 查看 `openspec/changes/archive/2026-07-08-add-product-get-by-id/`，这是用 v1.5.0 完整工作流（Explore → Propose → Apply → Sync → Archive）新增的「按 ID 查询单个商品」功能。对比该 change 中的 proposal/design/specs/tasks 与最终代码改动（`server.js`、`server.py`），理解 SDD 从规范到实现的完整链路。
+6. **研究**: 查看 `openspec/changes/archive/2025-01-27-v1-mvp/` 下的 MVP 规范文件，了解一个完整系统的规范如何从零构建。
 
 ---
 

@@ -62,3 +62,25 @@ def test_out_of_stock():
     resp = client.post("/api/orders", json={"userId": user_id})
     assert resp.status_code == 409
     assert "out of stock" in resp.json()["detail"].lower()
+
+
+def test_get_product_by_id():
+    # Add product
+    res = client.post("/api/products", json={
+        "name": "Test Product",
+        "priceCents": 300,
+        "stock": 5
+    })
+    assert res.status_code == 201
+    pid = res.json()["id"]
+
+    # Query existing product
+    res = client.get(f"/api/products/{pid}")
+    assert res.status_code == 200
+    assert res.json()["name"] == "Test Product"
+    assert res.json()["priceCents"] == 300
+
+    # Query non-existent product
+    res = client.get("/api/products/non-existent")
+    assert res.status_code == 404
+    assert "Product not found" in res.json()["detail"]

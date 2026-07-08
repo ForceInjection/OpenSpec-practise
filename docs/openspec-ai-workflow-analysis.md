@@ -22,7 +22,7 @@
 
 1. **架构设计**: AI 分析出电商系统的核心上下文：商品 (Catalog)、用户 (User)、购物车 (Cart)、订单 (Order)、支付 (Payment)；
 2. **边界划分**: 确定分层架构，将 HTTP 接口层、应用服务层与基础设施层（Repository）分离；
-3. **规格产出**: 在 `openspec/changes/v1-mvp/` 下生成了 `proposal.md`、`design.md`、`specs/` 及 `tasks.md`，明确了领域边界、SLO 指标和 API 契约，具体包括：
+3. **规格产出**: 在 `openspec/changes/archive/2025-01-27-v1-mvp/`（已归档）下生成了 `proposal.md`、`design.md`、`specs/` 及 `tasks.md`，明确了领域边界、SLO 指标和 API 契约，具体包括：
    - **Proposal**: 目标是构建一个高可测、低延迟的电商 Demo。
    - **Design**: 模块间的数据流向（用户 -> 购物车 -> 订单）。
    - **Spec**: HTTP 接口的路由定义（如 `POST /api/orders`）、错误码规范（`OUT_OF_STOCK`）及非功能指标（p99 < 100ms）。
@@ -147,7 +147,7 @@ OpenSpec 的核心价值之一是 **语言无关性 (Language Agnostic)**。为�
 
 **User Prompt**:
 
-> 请读取 [domain-model/spec.md](../examples/openspec/changes/v1-mvp/specs/domain-model/spec.md)。
+> 请读取 [domain-model/spec.md](../openspec/changes/archive/2025-01-27-v1-mvp/specs/domain-model/spec.md)。（注：v1-mvp 已归档至 `changes/archive/`）
 > 请基于此 Spec，使用 Python 的 Pydantic 库定义 Domain Models。
 > 要求：
 >
@@ -198,7 +198,7 @@ _注：通过 `alias` 实现了 Python 命名规范（snake_case）与 API 契�
 
 **User Prompt**:
 
-> 请基于 [src/domain/models.py](../examples/ecommerce-mini-python/src/domain/models.py) 和 [design.md](../examples/openspec/changes/v1-mvp/design.md)，实现 Service 层。
+> 请基于 [src/domain/models.py](../examples/ecommerce-mini-python/src/domain/models.py) 和 [design.md](../openspec/changes/archive/2025-01-27-v1-mvp/design.md)，实现 Service 层。（注：v1-mvp 已归档）
 > 包含三个服务：
 >
 > 1. `CatalogService`: 处理库存扣减（原子性模拟）。
@@ -353,8 +353,8 @@ examples/ecommerce-mini-python/tests/test_smoke.py ..           [100%]
 
 - OpenSpec CLI 参考: [OpenSpec 使用手册](./openspec-user-manual.md)（init、validate、archive 等命令详解）
 - 原始 Spec 指南: [openspec-practical-guide.md](./openspec-practical-guide.md)
-- OpenSpec 项目配置: `examples/openspec/config.yaml`（技术栈、架构约束与规则，自动注入每次 AI 规划请求）
-- OpenSpec 规范文件: `examples/openspec/changes/v1-mvp/`
+- OpenSpec 项目配置: `openspec/config.yaml`（技术栈、架构约束与规则，自动注入每次 AI 规划请求）
+- OpenSpec 规范文件: `openspec/changes/archive/2025-01-27-v1-mvp/`（已归档）
   - `proposal.md`: 变更提案
   - `design.md`: 架构设计
   - `specs/catalog-management/spec.md`: 商品目录管理规范

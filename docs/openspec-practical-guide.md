@@ -64,7 +64,7 @@ CLI (`openspec`) 适合人类开发者进行管理操作：
 
 OpenSpec 1.0+ 引入了 OPSX 工作流，实现了**动态指令体系**——AI 不再接收静态指令，而是主动查询 CLI 了解当前项目状态和文档依赖。
 
-在支持的 AI 编辑器（如 Cursor、Claude Code、Qoder、Windsurf、Junie、Lingma IDE、ForgeCode 等 20+ 工具）中，推荐使用斜杠命令（Slash Commands）驱动开发：
+在支持的 AI 编辑器（如 Cursor、Claude Code、Qoder、Junie、Lingma IDE、ForgeCode 等 20+ 工具）中，推荐使用斜杠命令（Slash Commands）驱动开发：
 
 **默认 Core 配置**：
 
@@ -88,6 +88,12 @@ OpenSpec 1.0+ 引入了 OPSX 工作流，实现了**动态指令体系**——AI
 | `/opsx:onboard`      | 15 分钟全流程引导                    |
 
 OPSX 工作流与旧版的最大区别在于：**动作而非阶段**。可以在任意时刻编辑任意文档，不存在阶段锁定。
+
+**v1.5.0 新特性**：
+
+- **Explore First（探索优先）**：`/opsx:explore` 作为推荐的起点。在不确定方案时，先进入探索模式调查代码库、对比选项、澄清需求——零成本的思考阶段，避免盲目开发。详见本指南第 6 章的真实探索过程复盘。
+- **Fluid Workflow（流式迭代）**：强化「流动而非僵化」的核心理念。所有规划文档可在实现过程中随时调整，不存在阶段锁。发现设计问题？直接编辑对应文档即可，AI 会自动感知变更。
+- **Stores（跨仓库规划，Beta）**：当项目涉及多个代码仓库（如微服务、前后端分离）时，可将规范集中在一个独立的 store 仓库中统一管理。各代码仓库通过 `references` 声明只读依赖。详见 [OpenSpec 使用手册 §3.5](./openspec-user-manual.md#35-各文件说明)。
 
 ### 2.4 验证与可观测性
 
@@ -121,7 +127,7 @@ OpenSpec 的迭代流程围绕着“规格优先”展开，但并不强制要�
 openspec init --tools none
 ```
 
-如果你使用的是配套源码，可运行以下命令确认规范文档完整无误：
+如果你使用的是配套源码，可运行以下命令确认规范文档完整无误（v1-mvp 已归档至 `changes/archive/`，此处为历史参考）：
 
 ```bash
 openspec validate v1-mvp
@@ -238,10 +244,10 @@ openspec validate v1-mvp
 - **规范验证**：使用 `openspec validate` 命令验证规范文档格式是否正确。
 
 ```bash
-# 验证变更规范
+# 验证变更规范（v1-mvp 已归档，此处为历史参考）
 openspec validate v1-mvp
 
-# 验证成功输出
+# 验证成功输出（示例）
 Change 'v1-mvp' is valid
 ```
 
@@ -331,9 +337,9 @@ Change 'v1-mvp' is valid
 
 ### 6.2 数据模型
 
-在 OpenSpec 中，我们首先在 `changes/v1-mvp/specs/domain-model/spec.md` 中定义模型。规范文件必须使用 Delta Header + Requirement + Scenario 格式：
+在 OpenSpec 中，我们首先在 `changes/archive/2025-01-27-v1-mvp/specs/domain-model/spec.md` 中定义模型。规范文件必须使用 Delta Header + Requirement + Scenario 格式：
 
-**Spec 定义 (`changes/v1-mvp/specs/domain-model/spec.md`)**:
+**Spec 定义 (`changes/archive/2025-01-27-v1-mvp/specs/domain-model/spec.md`)**:
 
 ```markdown
 # Domain Model Specification
@@ -432,7 +438,7 @@ And 库存保持不变
 
 ## 8. 接口设计
 
-OpenSpec 的核心优势在于使用 **Markdown** 编写可读性极强的规格文档，同时保持结构化。在 v1.2.0 中，规范按能力（Capability）组织，每个能力一个文件夹。以下是 `openspec/changes/v1-mvp/specs/catalog-management/spec.md` 和 `openspec/changes/v1-mvp/specs/order-management/spec.md` 的真实片段：
+OpenSpec 的核心优势在于使用 **Markdown** 编写可读性极强的规格文档，同时保持结构化。在 v1.2.0 中，规范按能力（Capability）组织，每个能力一个文件夹。以下是 `openspec/changes/archive/2025-01-27-v1-mvp/specs/catalog-management/spec.md` 和 `openspec/changes/archive/2025-01-27-v1-mvp/specs/order-management/spec.md` 的真实片段：
 
 ```markdown
 # Catalog Management Specification
@@ -504,7 +510,7 @@ And 返回错误码 OUT_OF_STOCK
 > - 每个需求至少包含一个 `#### Scenario:` 块，使用 Gherkin 格式（Given/When/Then）。
 > - 这里的 `Product[]` 和 `Order` 引用了 `domain-model/spec.md` 中定义的数据模型，保持了定义的一致性。
 >
->   **格式检查**：编写完成后，务必运行 `openspec validate v1-mvp` 验证格式，避免因章节标题或 Scenario 缺失导致后续流程阻塞。
+>   **格式检查**：编写完成后，务必运行 `openspec validate <change-name>` 验证格式，避免因章节标题或 Scenario 缺失导致后续流程阻塞。本案例中使用的命令为 `openspec validate v1-mvp`（v1-mvp 已归档至 `changes/archive/`）。
 
 ## 9. 规范驱动实现
 
@@ -531,28 +537,32 @@ OpenSpec-practise/
 │   ├── openspec-user-manual.md          <-- OpenSpec 使用手册
 │   ├── openspec-practical-guide.md  <-- 实战指南（本文档）
 │   └── openspec-ai-workflow-analysis.md  <-- AI 协作流程分析
+├── openspec/                        <-- OpenSpec 规范目录
+│   ├── config.yaml                  <-- 项目配置（技术栈、规则等）
+│   ├── specs/                       <-- 主规范（归档后的事实来源）
+│   │   ├── catalog-management/spec.md
+│   │   ├── cart-management/spec.md
+│   │   ├── order-management/spec.md
+│   │   ├── payment/spec.md
+│   │   ├── domain-model/spec.md
+│   │   ├── error-handling/spec.md
+│   │   └── product-query/spec.md    <-- v1.5.0 新增：按 ID 查询商品
+│   └── changes/                     <-- 变更目录
+│       ├── archive/                 <-- 已归档变更
+│       │   ├── 2025-01-27-v1-mvp/   <-- MVP 变更规范（已归档）
+│       │   │   ├── .openspec.yaml   <-- 变更元数据
+│       │   │   ├── proposal.md      <-- 对应提案文档
+│       │   │   ├── design.md        <-- 对应设计文档
+│       │   │   ├── tasks.md         <-- 对应任务清单
+│       │   │   └── specs/           <-- Delta 规范（按能力组织）
+│       │   │       ├── catalog-management/spec.md
+│       │   │       ├── cart-management/spec.md
+│       │   │       ├── order-management/spec.md
+│       │   │       ├── payment/spec.md
+│       │   │       ├── domain-model/spec.md
+│       │   │       └── error-handling/spec.md
+│       │   └── 2026-07-08-add-product-get-by-id/  <-- v1.5.0 工作流实践
 ├── examples/
-│   ├── openspec/                    <-- OpenSpec 规范目录
-│   │   ├── config.yaml              <-- 项目配置（技术栈、规则等）
-│   │   ├── specs/                   <-- 主规范（归档后的事实来源）
-│   │   │   ├── catalog-management/spec.md
-│   │   │   ├── cart-management/spec.md
-│   │   │   ├── order-management/spec.md
-│   │   │   ├── payment/spec.md
-│   │   │   ├── domain-model/spec.md
-│   │   │   └── error-handling/spec.md
-│   │   └── changes/v1-mvp/          <-- MVP 变更规范
-│   │       ├── .openspec.yaml       <-- 变更元数据
-│   │       ├── proposal.md          <-- 对应提案文档
-│   │       ├── design.md            <-- 对应设计文档
-│   │       ├── tasks.md             <-- 对应任务清单
-│   │       └── specs/               <-- Delta 规范（按能力组织）
-│   │           ├── catalog-management/spec.md  <-- 商品管理规范
-│   │           ├── cart-management/spec.md     <-- 购物车管理规范
-│   │           ├── order-management/spec.md    <-- 订单管理规范
-│   │           ├── payment/spec.md             <-- 支付规范
-│   │           ├── domain-model/spec.md        <-- 领域模型规范
-│   │           └── error-handling/spec.md      <-- 错误处理规范
 │   ├── ecommerce-mini/              <-- Node.js Implementation
 │   │   └── src/
 │   │       ├── domain/types.js      <-- 对应 Spec 中的 Data Models

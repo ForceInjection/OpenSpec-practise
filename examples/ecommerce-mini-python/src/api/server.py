@@ -37,6 +37,13 @@ class CreateOrderRequest(BaseModel):
 def list_products():
     return catalog_svc.list_products()
 
+@app.get("/api/products/{id}", response_model=Product)
+def get_product(id: str):
+    product = catalog_svc.get_product(id)
+    if product is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return product
+
 @app.post("/api/products", status_code=201, response_model=Product)
 def add_product(req: AddProductRequest):
     return catalog_svc.add_product(req.name, req.priceCents, req.stock)

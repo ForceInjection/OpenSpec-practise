@@ -129,15 +129,20 @@ The advantages of this approach are:
    - Humans and AI agree on the spec before writing any code
    - Avoids rework caused by AI misunderstanding requirements
 
-2. **Stay organized**
+2. **Explore First (v1.5.0)**
+   - Investigate the codebase and think through problems before committing to a change
+   - Use `/opsx:explore` as the recommended starting point
+
+3. **Stay organized**
    - Each change has its own folder
    - Contains proposal, specs, design, and tasks
 
-3. **Fluid iteration**
-   - Update any document at any time
-   - No rigid phase gates
+4. **Fluid Workflow (v1.5.0)**
+   - Iterate freely: update any document at any time, no rigid phase gates
+   - Sync, merge, and archive through a natural, continuous flow
+   - Supports cross-repository planning (Stores)
 
-4. **Tool compatibility**
+5. **Tool compatibility**
    - Supports 20+ AI coding assistants (Claude Code, Cursor, Junie, Lingma IDE, etc.)
 
 ---
@@ -191,12 +196,12 @@ openspec --help
 After successful installation, you will see output similar to (or manually run `openspec --version` to check the version number):
 
 ```bash
-1.3.1
+1.5.0
 ```
 
 ### 2.4 Configure Shell Auto-Completion (Optional)
 
-Since v1.3.0, to avoid encoding issues in certain terminals (such as PowerShell), Shell auto-completion has been changed to **opt-in**.
+Since v1.5.0, to avoid encoding issues in certain terminals (such as PowerShell), Shell auto-completion has been changed to **opt-in**.
 
 If you want to use `openspec` command completion in your terminal, you can run the following command to generate and install the completion script (supports bash, zsh, fish, etc.):
 
@@ -238,7 +243,7 @@ openspec init
 
 Use the space bar to select and Enter to confirm.
 
-> **Qoder users**: If you are using Qoder IDE, select **Qoder**. OpenSpec v1.2.0 provides native support for Qoder and will automatically generate the corresponding commands and Skills files in `.qoder/commands/opsx/` and `.qoder/skills/`.
+> **Claude Code users**: If you're using Claude Code, select **Claude Code**. OpenSpec v1.5.0 provides native support for Claude Code, automatically generating the corresponding commands and Skills files in `.claude/commands/opsx/` and `.claude/skills/`.
 
 ### 3.3 Non-Interactive Mode
 
@@ -254,8 +259,8 @@ openspec init --tools all
 # Configure only specific tools (comma-separated)
 openspec init --tools claude,cursor
 
-# Configure Qoder
-openspec init --tools qoder
+# Configure Claude Code
+openspec init --tools claude
 ```
 
 **Common tool identifier list**:
@@ -263,7 +268,6 @@ openspec init --tools qoder
 | Tool Name          | `--tools` value  |
 | ------------------ | ---------------- |
 | Claude Code        | `claude`         |
-| Qoder              | `qoder`          |
 | Cursor             | `cursor`         |
 | JetBrains Junie    | `junie`          |
 | Lingma IDE         | `lingma`         |
@@ -287,7 +291,7 @@ your-project/
 │   ├── config.yaml               # Project config (tech stack, conventions, etc., injected into AI requests)
 │   ├── changes/                  # Change proposal directory (one folder per feature/change)
 │   └── specs/                    # Main spec directory (archived specs)
-├── .qoder/                       # Qoder-specific directory (example)
+├── .claude/                      # Claude Code-specific directory (example)
 │   ├── commands/opsx/            # /opsx slash commands (invoked directly from IDE)
 │   │   ├── propose.md
 │   │   ├── explore.md
@@ -301,7 +305,7 @@ your-project/
 └── ... (other project files)
 ```
 
-> **Note**: `openspec init` generates commands and Skills files in the corresponding directories based on the AI tools you selected. For example, selecting Claude Code generates `.claude/commands/opsx/` and `.claude/skills/`; selecting Qoder generates `.qoder/commands/opsx/` and `.qoder/skills/`.
+> **Note**: `openspec init` generates commands and Skills files in the corresponding directories based on the AI tools you selected. For example, selecting Claude Code generates `.claude/commands/opsx/` and `.claude/skills/`.
 
 ### 3.5 File Descriptions
 
@@ -334,6 +338,8 @@ rules:
   tasks:
     - Break tasks into max 2-hour chunks
 ```
+
+> **Stores (v1.5.0)**: OpenSpec now supports cross-repository planning through Stores. This allows you to coordinate specs and changes across multiple repositories (e.g., microservices, shared libraries) from a single planning context.
 
 ---
 
@@ -555,7 +561,7 @@ spec.md structure:
 
 #### 5.3.3 Correct Example
 
-> The example below shows the core Requirement + Scenario structure. For a complete example (including the `## Overview` section), see `examples/openspec/changes/v1-mvp/specs/domain-model/spec.md` (e-commerce domain model spec):
+> The example below shows the core Requirement + Scenario structure. For a complete example (including the `## Overview` section), see `openspec/changes/archive/2025-01-27-v1-mvp/specs/domain-model/spec.md` (e-commerce domain model spec):
 
 ```markdown
 ## ADDED Requirements
@@ -863,7 +869,7 @@ This outputs the parsed result in JSON format, helping you understand how OpenSp
 openspec status --change <change-name>
 ```
 
-> **Tip**: Since v1.3.0, if no changes currently exist, the `openspec status` command will exit gracefully (with a "no changes" message) instead of throwing a fatal error.
+> **Tip**: Since v1.5.0, if no changes currently exist, the `openspec status` command will exit gracefully (with a "no changes" message) instead of throwing a fatal error.
 
 Example output:
 
@@ -898,7 +904,7 @@ Before running `openspec validate`, confirm:
 
 | Command                      | Description                       | Example                             |
 | ---------------------------- | --------------------------------- | ----------------------------------- |
-| `openspec init`              | Initialize an OpenSpec project    | `openspec init --tools qoder`       |
+| `openspec init`              | Initialize an OpenSpec project    | `openspec init --tools claude`      |
 | `openspec new change <name>` | Create only the change directory  | `openspec new change add-user-auth` |
 | `openspec update`            | Update AI skill and command files | `openspec update`                   |
 
@@ -1106,7 +1112,7 @@ OpenSpec 1.0+ introduced the new OPSX workflow, replacing the old phase-locked m
 | Command                       | Purpose                                                                                                                                                                |
 | :---------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/opsx:propose <description>` | Creates a change in one step and **intelligently generates** all planning documents (AI infers the kebab-case directory name and fills in proposal/design/specs/tasks) |
-| `/opsx:explore`               | Enter exploration mode: think through problems and investigate the codebase without writing code                                                                       |
+| `/opsx:explore`               | Explore First: investigate problems and codebase before writing code. The recommended starting point for any change using the Explore First workflow.                  |
 | `/opsx:apply`                 | Implement tasks following tasks.md                                                                                                                                     |
 | `/opsx:archive`               | Complete and archive the current change                                                                                                                                |
 
@@ -1127,6 +1133,12 @@ OpenSpec 1.0+ introduced the new OPSX workflow, replacing the old phase-locked m
 > - `/openspec:proposal` → `/opsx:propose`
 > - `/openspec:apply` → `/opsx:apply`
 > - `/openspec:archive` → `/opsx:archive`
+
+**v1.5.0 New Features**:
+
+- **Explore First**: Use the `/opsx:explore` command to enter exploration mode when you're uncertain, systematically think through problems, investigate the codebase, and clarify before proposing — avoiding blind development.
+- **Fluid Workflow**: Enhanced iterative experience with editable documents at any time, no phase locks. Supports freely adjusting planning documents during implementation, truly achieving "fluid not rigid."
+- **Stores (Cross-Repository Planning)**: Supports unified specification management across multiple repositories, ideal for multi-project collaboration scenarios in microservice architectures. Combined with the `/opsx:sync` command, delta specs can be synchronized to a unified main specification repository.
 
 #### 8.5.2 Tips for Collaborating with AI
 
@@ -1267,6 +1279,6 @@ Complex business logic often makes Specs difficult to read. In such cases, archi
 
 ---
 
-_Document version: 2.2_
-_Last updated: 2026-05-07_
-_Based on Issue #7 added FAQ and optimized document structure. Includes OpenSpec v1.3.1 updates._
+_Document version: 3.0_
+_Last updated: 2026-07-08_
+_Includes OpenSpec v1.5.0 updates: Explore First, Fluid Workflow, Stores (cross-repo planning)._

@@ -1,5 +1,14 @@
 schema: spec-driven
 
+# === v1.5.0: Store 指针 (可选) ===
+# 当规划需要跨多个代码仓库时，可将规划集中在一个独立的 store 仓库中。
+# store: team-plans
+
+# === v1.5.0: 引用其他 store (可选) ===
+# 声明本仓库依赖的其他 store（只读上下文）。
+# references:
+#   - platform-reqs
+
 context: |
   Project: ecommerce-mini - A minimal e-commerce system demonstrating OpenSpec Spec-Driven Development.
   Dual-language implementation: Node.js (v20+, zero npm dependencies) and Python (FastAPI + Pydantic).

@@ -51,4 +51,16 @@ describe('领域与服务单元测试', () => {
     cart.addToCart('u1', p.id, 2)
     assert.throws(() => orders.createOrder('u1'), /OUT_OF_STOCK/)
   })
+
+  it('按ID查询单个商品', () => {
+    const p = catalog.addProduct({ name: 'Single', priceCents: 999, stock: 5 })
+    const found = catalog.getProduct(p.id)
+    assert.ok(found)
+    assert.strictEqual(found.name, 'Single')
+  })
+
+  it('查询不存在的商品返回undefined', () => {
+    const found = catalog.getProduct('non-existent')
+    assert.strictEqual(found, undefined)
+  })
 })

@@ -194,12 +194,12 @@ openspec --help
 安装成功后，你将看到类似输出(或者主动执行 `openspec --version` 查看版本号)：
 
 ```bash
-1.3.1
+1.5.0
 ```
 
 ### 2.4 配置 Shell 自动补全（可选）
 
-自 v1.3.0 起，为了避免在某些终端（如 PowerShell）中出现编码问题，Shell 自动补全功能改为**手动开启（Opt-in）**。
+自 v1.5.0 起，为了避免在某些终端（如 PowerShell）中出现编码问题，Shell 自动补全功能改为**手动开启（Opt-in）**。
 
 如果你希望在终端中使用 `openspec` 的命令补全，可以运行以下命令生成并安装补全脚本（支持 bash、zsh、fish 等）：
 
@@ -245,7 +245,7 @@ openspec init
 
 使用空格键选择，回车键确认。
 
-> **Qoder 用户提示**：如果你使用的是 Qoder IDE，请选择 **Qoder**。OpenSpec v1.2.0 对 Qoder 提供原生支持，会自动在 `.qoder/commands/opsx/` 和 `.qoder/skills/` 目录生成对应的命令和 Skills 文件。
+> **Claude Code 用户提示**：如果你使用的是 Claude Code，请选择 **Claude Code**。OpenSpec v1.5.0 对 Claude Code 提供原生支持，会自动在 `.claude/commands/opsx/` 和 `.claude/skills/` 目录生成对应的命令和 Skills 文件。
 
 ### 3.3 非交互模式
 
@@ -261,8 +261,8 @@ openspec init --tools all
 # 只配置特定工具（逗号分隔）
 openspec init --tools claude,cursor
 
-# 配置 Qoder
-openspec init --tools qoder
+# 配置 Claude Code
+openspec init --tools claude
 ```
 
 **常用工具标识符列表**：
@@ -270,7 +270,6 @@ openspec init --tools qoder
 | 工具名称           | `--tools` 参数值 |
 | ------------------ | ---------------- |
 | Claude Code        | `claude`         |
-| Qoder              | `qoder`          |
 | Cursor             | `cursor`         |
 | JetBrains Junie    | `junie`          |
 | Lingma IDE         | `lingma`         |
@@ -294,7 +293,7 @@ your-project/
 │   ├── config.yaml               # 项目配置（技术栈、约定规则等，注入 AI 请求）
 │   ├── changes/                  # 变更提案目录（每个功能/变更一个文件夹）
 │   └── specs/                    # 主规范目录（已归档的规范）
-├── .qoder/                       # Qoder 专属目录（示例）
+├── .claude/                       # Claude Code 专属目录（示例）
 │   ├── commands/opsx/            # /opsx 斜杠命令（供 IDE 直接调用）
 │   │   ├── propose.md
 │   │   ├── explore.md
@@ -565,7 +564,7 @@ spec.md 结构：
 
 #### 5.3.3 正确示例
 
-> 以下示例展示核心 Requirement + Scenario 结构。完整示例（含 `## Overview` 段落）参见 `examples/openspec/changes/v1-mvp/specs/domain-model/spec.md`（电商领域模型规范）：
+> 以下示例展示核心 Requirement + Scenario 结构。完整示例（含 `## Overview` 段落）参见 `openspec/changes/archive/2025-01-27-v1-mvp/specs/domain-model/spec.md`（电商领域模型规范）：
 
 ```markdown
 ## ADDED Requirements
@@ -877,7 +876,7 @@ openspec show <change-name> --json --deltas-only
 openspec status --change <change-name>
 ```
 
-> **提示**：自 v1.3.0 起，如果当前不存在任何变更，`openspec status` 命令会优雅地退出（提示无变更），而不再抛出致命错误。
+> **提示**：自 v1.5.0 起，如果当前不存在任何变更，`openspec status` 命令会优雅地退出（提示无变更），而不再抛出致命错误。
 
 输出示例：
 
@@ -914,7 +913,7 @@ OpenSpec CLI 提供了一套完整的命令行工具，用于管理从项目初�
 
 | 命令                         | 说明                   | 示例                                |
 | ---------------------------- | ---------------------- | ----------------------------------- |
-| `openspec init`              | 初始化 OpenSpec 项目   | `openspec init --tools qoder`       |
+| `openspec init`              | 初始化 OpenSpec 项目   | `openspec init --tools claude`      |
 | `openspec new change <name>` | 仅创建变更目录结构     | `openspec new change add-user-auth` |
 | `openspec update`            | 更新 AI 技能和命令文件 | `openspec update`                   |
 
@@ -1156,6 +1155,12 @@ OpenSpec 1.0+ 引入了全新的 OPSX 工作流，替换了旧版的阶段锁定
 > - `/openspec:apply` → `/opsx:apply`
 > - `/openspec:archive` → `/opsx:archive`
 
+**v1.5.0 新特性**：
+
+- **Explore First（探索优先）**：通过 `/opsx:explore` 命令在不确定方案时先进入探索模式，系统性思考问题、调查代码库，明确后再提案，避免盲目开发。
+- **Fluid Workflow（流式迭代）**：强化文档随时可编辑、无阶段锁定的迭代体验，支持在实现过程中自由调整规划文档，真正实现「流动而非僵化」。
+- **Stores（跨仓库规划）**：支持跨多个仓库统一管理规范，适合微服务架构下的多项目协作场景。结合 `/opsx:sync` 命令，可将 Delta 规范同步到统一的主规范仓库。
+
 #### 8.5.2 与 AI 协作的技巧
 
 1. **先探索后提案**：不确定时先用 `/opsx:explore` 思考，明确后再 `/opsx:propose`
@@ -1307,6 +1312,6 @@ OpenSpec 强调“外部可观察行为”，但这不仅限于前端界面的�
 
 ---
 
-_文档版本: 2.2_
-_最后更新: 2026-05-07_
-_基于 Issue #7 补充常见问题与解答，优化文档结构_
+_文档版本: 2.3_
+_最后更新: 2026-07-08_
+_基于 v1.5.0 更新：迁移至 Claude Code，新增 Explore First / Fluid Workflow / Stores 特性_

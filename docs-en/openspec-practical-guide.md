@@ -64,7 +64,7 @@ The CLI (`openspec`) is suited for management operations by human developers:
 
 OpenSpec 1.0+ introduced the OPSX workflow, implementing a **dynamic command system** — AI no longer receives static instructions but actively queries the CLI to understand the current project state and document dependencies.
 
-In supported AI editors (such as Cursor, Claude Code, Qoder, Windsurf, Junie, Lingma IDE, ForgeCode, and 20+ other tools), it is recommended to drive development using Slash Commands:
+In supported AI editors (such as Cursor, Claude Code, Qoder, Junie, Lingma IDE, ForgeCode, and 20+ other tools), it is recommended to drive development using Slash Commands:
 
 **Default Core Configuration**:
 
@@ -88,6 +88,12 @@ In supported AI editors (such as Cursor, Claude Code, Qoder, Windsurf, Junie, Li
 | `/opsx:onboard`      | 15-minute full-process guided walkthrough                             |
 
 The key difference between the OPSX workflow and the old version is: **actions, not phases**. You can edit any document at any time — there is no phase locking.
+
+**v1.5.0 New Features**:
+
+- **Explore First**: `/opsx:explore` is the recommended starting point. When uncertain, enter exploration mode to investigate the codebase, compare options, and clarify requirements — a zero-cost thinking phase that prevents blind development. See Chapter 6 of this guide for a real exploration process walkthrough.
+- **Fluid Workflow**: Reinforces the "fluid not rigid" core philosophy. All planning documents can be freely adjusted during implementation — no phase locks. Discovered a design issue? Simply edit the relevant document; the AI automatically detects the change.
+- **Stores (Cross-Repository Planning, Beta)**: When a project spans multiple code repositories (e.g., microservices, separate frontend/backend), centralized specification management is available through a standalone store repository. Each code repository declares read-only dependencies via `references`. See the [OpenSpec User Manual §3.5](./openspec-user-manual.md#35-file-descriptions).
 
 ### 2.4 Validation and Observability
 
@@ -121,7 +127,7 @@ Use the CLI to quickly initialize the project structure (if you are using the `e
 openspec init --tools none
 ```
 
-If you are using the companion source code, run the following command to confirm that the spec documents are complete and valid:
+If you are using the companion source code, run the following command to confirm that the spec documents are complete and valid (v1-mvp has been archived to `changes/archive/`, shown here for historical reference):
 
 ```bash
 openspec validate v1-mvp
@@ -238,10 +244,10 @@ This is the core of OpenSpec — **code is a mapping of the spec**.
 - **Spec Validation**: Use the `openspec validate` command to verify that the spec document format is correct.
 
 ```bash
-# Validate the change spec
+# Validate the change spec (v1-mvp has been archived, shown for historical reference)
 openspec validate v1-mvp
 
-# Successful validation output
+# Successful validation output (example)
 Change 'v1-mvp' is valid
 ```
 
@@ -331,9 +337,9 @@ Standard RESTful JSON style is used.
 
 ### 6.2 Data Models
 
-In OpenSpec, we first define the models in `changes/v1-mvp/specs/domain-model/spec.md`. Spec files must use the Delta Header + Requirement + Scenario format:
+In OpenSpec, we first define the models in `changes/archive/2025-01-27-v1-mvp/specs/domain-model/spec.md`. Spec files must use the Delta Header + Requirement + Scenario format:
 
-**Spec Definition (`changes/v1-mvp/specs/domain-model/spec.md`)**:
+**Spec Definition (`changes/archive/2025-01-27-v1-mvp/specs/domain-model/spec.md`)**:
 
 ```markdown
 # Domain Model Specification
@@ -432,7 +438,7 @@ Unified error response structure for easy front-end processing:
 
 ## 8. Interface Design
 
-A key advantage of OpenSpec is using **Markdown** to write highly readable spec documents while maintaining structure. In v1.2.0, specs are organized by Capability, one folder per capability. The following are real excerpts from `openspec/changes/v1-mvp/specs/catalog-management/spec.md` and `openspec/changes/v1-mvp/specs/order-management/spec.md`:
+A key advantage of OpenSpec is using **Markdown** to write highly readable spec documents while maintaining structure. In v1.2.0, specs are organized by Capability, one folder per capability. The following are real excerpts from `openspec/changes/archive/2025-01-27-v1-mvp/specs/catalog-management/spec.md` and `openspec/changes/archive/2025-01-27-v1-mvp/specs/order-management/spec.md`:
 
 ```markdown
 # Catalog Management Specification
@@ -504,7 +510,7 @@ And the error code OUT_OF_STOCK is returned
 > - Each requirement must contain at least one `#### Scenario:` block in Gherkin format (Given/When/Then).
 > - The `Product[]` and `Order` references here refer to data models defined in `domain-model/spec.md`, maintaining definition consistency.
 >
->   **Format Check**: After writing, be sure to run `openspec validate v1-mvp` to verify the format, and avoid blocking subsequent processes due to missing section headings or Scenarios.
+>   **Format Check**: After writing, be sure to run `openspec validate <change-name>` to verify the format, and avoid blocking subsequent processes due to missing section headings or Scenarios. The command used in this case study was `openspec validate v1-mvp` (v1-mvp has been archived to `changes/archive/`).
 
 ## 9. Spec-Driven Implementation
 
@@ -531,28 +537,32 @@ OpenSpec-practise/
 │   ├── openspec-user-manual.md          <-- OpenSpec User Manual
 │   ├── openspec-practical-guide.md  <-- Practical Guide (this document)
 │   └── openspec-ai-workflow-analysis.md  <-- AI Collaboration Workflow Analysis
+├── openspec/                        <-- OpenSpec spec directory
+│   ├── config.yaml                  <-- Project configuration (tech stack, rules, etc.)
+│   ├── specs/                       <-- Main spec (source of truth after archiving)
+│   │   ├── catalog-management/spec.md
+│   │   ├── cart-management/spec.md
+│   │   ├── order-management/spec.md
+│   │   ├── payment/spec.md
+│   │   ├── domain-model/spec.md
+│   │   ├── error-handling/spec.md
+│   │   └── product-query/spec.md    <-- v1.5.0 added: query product by ID
+│   └── changes/                     <-- Change directory
+│       └── archive/                 <-- Archived changes
+│           ├── 2025-01-27-v1-mvp/   <-- MVP change spec (archived)
+│           │   ├── .openspec.yaml   <-- Change metadata
+│           │   ├── proposal.md      <-- Corresponding proposal document
+│           │   ├── design.md        <-- Corresponding design document
+│           │   ├── tasks.md         <-- Corresponding task list
+│           │   └── specs/           <-- Delta specs (organized by capability)
+│           │       ├── catalog-management/spec.md
+│           │       ├── cart-management/spec.md
+│           │       ├── order-management/spec.md
+│           │       ├── payment/spec.md
+│           │       ├── domain-model/spec.md
+│           │       └── error-handling/spec.md
+│           └── 2026-07-08-add-product-get-by-id/  <-- v1.5.0 workflow practice
 ├── examples/
-│   ├── openspec/                    <-- OpenSpec spec directory
-│   │   ├── config.yaml              <-- Project configuration (tech stack, rules, etc.)
-│   │   ├── specs/                   <-- Main spec (source of truth after archiving)
-│   │   │   ├── catalog-management/spec.md
-│   │   │   ├── cart-management/spec.md
-│   │   │   ├── order-management/spec.md
-│   │   │   ├── payment/spec.md
-│   │   │   ├── domain-model/spec.md
-│   │   │   └── error-handling/spec.md
-│   │   └── changes/v1-mvp/          <-- MVP change spec
-│   │       ├── .openspec.yaml       <-- Change metadata
-│   │       ├── proposal.md          <-- Corresponding proposal document
-│   │       ├── design.md            <-- Corresponding design document
-│   │       ├── tasks.md             <-- Corresponding task list
-│   │       └── specs/               <-- Delta specs (organized by capability)
-│   │           ├── catalog-management/spec.md  <-- Catalog management spec
-│   │           ├── cart-management/spec.md     <-- Cart management spec
-│   │           ├── order-management/spec.md    <-- Order management spec
-│   │           ├── payment/spec.md             <-- Payment spec
-│   │           ├── domain-model/spec.md        <-- Domain model spec
-│   │           └── error-handling/spec.md      <-- Error handling spec
 │   ├── ecommerce-mini/              <-- Node.js Implementation
 │   │   └── src/
 │   │       ├── domain/types.js      <-- Corresponds to Data Models in the Spec

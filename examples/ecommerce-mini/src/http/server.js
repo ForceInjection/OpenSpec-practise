@@ -51,6 +51,13 @@ export function createServer() {
         return sendJson(res, 201, product)
       }
 
+      if (pathname.startsWith('/api/products/') && req.method === 'GET') {
+        const id = pathname.split('/').pop()
+        const product = catalogService.getProduct(id)
+        if (!product) return sendError(res, 'NOT_FOUND', 'Product not found', 404)
+        return sendJson(res, 200, product)
+      }
+
       if (pathname === '/api/cart/items' && req.method === 'POST') {
         const body = await readJson(req)
         // Mock user ID for dev

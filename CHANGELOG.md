@@ -13,6 +13,7 @@ OpenSpec v1.6.0 是一个小型迭代，核心变化：
 - **修复** — 空 store 注册失败、archive 校验失败时的退出码错误
 
 本仓库跟进：
+
 - 通过 `openspec update --force` 刷新所有 `.claude/` 技能和命令文件
 - 10 个文件更新，15 行新增
 
@@ -21,11 +22,13 @@ OpenSpec v1.6.0 是一个小型迭代，核心变化：
 OpenSpec v1.5.0 是三个版本积累的重大更新。详见 [升级解读文章](docs/openspec-v1.5.0-upgrade.md)。
 
 三大变革：
+
 - **Schema 驱动** — 指令从硬编码 TypeScript 源码抽离为 `schema.yaml`，AI 通过 `openspec instructions --json` 动态获取上下文
 - **Stores (Beta)** — 规划成为独立的 Git 仓库，跨仓库统一管理
 - **Explore First** — `/opsx:explore` 提升为推荐工作流入口
 
 本仓库跟进：
+
 - AI 工具从 `.qoder/` 迁移至 `.claude/`
 - `examples/openspec/` 统一至根级 `openspec/`
 - v1-mvp 归档至 `changes/archive/2025-01-27-v1-mvp/`
@@ -35,6 +38,7 @@ OpenSpec v1.5.0 是三个版本积累的重大更新。详见 [升级解读文�
 ## v1.3.1 (2026-05-07)
 
 初始版本。基于 OpenSpec v1.3.1 的 SDD 实践，包含：
+
 - 电商 MVP 示例（Node.js + Python 双实现）
 - OpenSpec 使用手册、实战指南、AI 工作流分析三份文档
 - `.qoder/` AI 工具配置

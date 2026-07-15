@@ -210,6 +210,7 @@ python -m uvicorn src.api.server:app --reload
 
 ## 相关链接
 
+- [CHANGELOG](./CHANGELOG.md) — 本项目跟随 OpenSpec 版本的演进记录
 - [OpenSpec 官方仓库](https://github.com/Fission-AI/OpenSpec)
 - [OpenSpec 官方文档](https://github.com/Fission-AI/OpenSpec/tree/main/docs)
 - [npm 包](https://www.npmjs.com/package/@fission-ai/openspec)

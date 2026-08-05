@@ -196,7 +196,8 @@ Recommended learning order:
 3. **Deep Dive**: Read the [OpenSpec Practical Guide: A Deep Retrospective on AI-Assisted Software Engineering End-to-End](docs-en/openspec-ai-workflow-analysis.md) to learn best practices for AI collaboration.
 4. **Hands-On**: Run `examples/ecommerce-mini` and `examples/ecommerce-mini-python` to experience spec-driven development firsthand. Both implementations are products of the same set of OpenSpec specifications.
 5. **Practice v1.5.0 Workflow**: Browse `openspec/changes/archive/2026-07-08-add-product-get-by-id/`, a "query product by ID" feature added using the complete v1.5.0 workflow (Explore → Propose → Apply → Sync → Archive). Compare the proposal/design/specs/tasks in this change with the final code changes (`server.js`, `server.py`) to understand the complete SDD chain from specification to implementation.
-6. **Research**: Browse the specification files under `openspec/changes/archive/2025-01-27-v1-mvp/` to learn how a complete system's specifications are built from scratch.
+6. **Practice v1.7.0 Workflow**: Read the [v1.7.0 Workflow Practice](docs-en/openspec-v1.7.0-workflow-practice.md), a "product search and price sort" feature added using the complete workflow (Explore → Propose → **Update** → Apply → Sync → Archive), demonstrating how `/opsx:update` revises planning artifacts mid-implementation while keeping them coherent. Artifacts in `openspec/changes/archive/2026-07-28-add-product-search/`.
+7. **Research**: Browse the specification files under `openspec/changes/archive/2025-01-27-v1-mvp/` to learn how a complete system's specifications are built from scratch.
 
 ---
 

@@ -196,7 +196,8 @@ python -m uvicorn src.api.server:app --reload
 3. **深入**: 阅读 [OpenSpec 实战指南：AI 辅助软件工程全流程深度复盘](docs/openspec-ai-workflow-analysis.md)，了解 AI 协作的最佳实践。
 4. **动手**: 运行 `examples/ecommerce-mini` 和 `examples/ecommerce-mini-python`，体验规范驱动开发。两个实现均为同一套 OpenSpec 规范的产物。
 5. **实践 v1.5.0 工作流**: 查看 `openspec/changes/archive/2026-07-08-add-product-get-by-id/`，这是用 v1.5.0 完整工作流（Explore → Propose → Apply → Sync → Archive）新增的「按 ID 查询单个商品」功能。对比该 change 中的 proposal/design/specs/tasks 与最终代码改动（`server.js`、`server.py`），理解 SDD 从规范到实现的完整链路。
-6. **研究**: 查看 `openspec/changes/archive/2025-01-27-v1-mvp/` 下的 MVP 规范文件，了解一个完整系统的规范如何从零构建。
+6. **实践 v1.7.0 工作流**: 阅读 [v1.7.0 工作流实践文档](docs/openspec-v1.7.0-workflow-practice.md)，这是用完整工作流（Explore → Propose → **Update** → Apply → Sync → Archive）新增的「商品搜索与价格排序」功能，重点演示了 `/opsx:update` 如何在实施中修订规划文档并保持 artifacts 一致性。产物见 `openspec/changes/archive/2026-07-28-add-product-search/`。
+7. **研究**: 查看 `openspec/changes/archive/2025-01-27-v1-mvp/` 下的 MVP 规范文件，了解一个完整系统的规范如何从零构建。
 
 ---
 

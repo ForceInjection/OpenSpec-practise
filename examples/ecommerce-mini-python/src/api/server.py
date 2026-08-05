@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 from ..domain.models import Product, Order, Cart
 from ..repo.memory import MemoryRepo
@@ -34,8 +34,8 @@ class CreateOrderRequest(BaseModel):
     userId: str
 
 @app.get("/api/products", response_model=List[Product])
-def list_products():
-    return catalog_svc.list_products()
+def list_products(name: Optional[str] = None, sort: Optional[str] = None):
+    return catalog_svc.list_products(name, sort)
 
 @app.get("/api/products/{id}", response_model=Product)
 def get_product(id: str):

@@ -84,3 +84,49 @@ def test_get_product_by_id():
     res = client.get("/api/products/non-existent")
     assert res.status_code == 404
     assert "Product not found" in res.json()["detail"]
+
+
+def test_search_and_sort():
+    # Add products
+    for name, price in [("iPhone 15", 5999), ("iPad Pro", 7999), ("MacBook", 9999)]:
+        client.post("/api/products", json={"name": name, "priceCents": price, "stock": 5})
+
+    # Search by name (case-insensitive)
+    res = client.get("/api/products", params={"name": "ipad"})
+    assert res.status_code == 200
+    assert len(res.json()) == 1
+    assert res.json()[0]["name"] == "iPad Pro"
+
+    # No params -> all products (shared app instance: previous tests also added products)
+    res = client.get("/api/products")
+    assert res.status_code == 200
+    all_products = res.json()
+    assert len(all_products) >= 3
+    names = {p["name"] for p in all_products}
+    assert {"iPhone 15", "iPad Pro", "MacBook"} <= names
+
+    # No results
+    res = client.get("/api/products", params={"name": "nonexistent"})
+    assert res.status_code == 200
+    assert res.json() == []
+
+    # Sort ascending
+    res = client.get("/api/products", params={"sort": "price_asc"})
+    prices = [p["priceCents"] for p in res.json()]
+    assert prices == sorted(prices)
+
+    # Sort descending
+    res = client.get("/api/products", params={"sort": "price_desc"})
+    prices = [p["priceCents"] for p in res.json()]
+    assert prices == sorted(prices, reverse=True)
+
+    # Invalid sort value -> natural order, still 200
+    res = client.get("/api/products", params={"sort": "invalid"})
+    assert res.status_code == 200
+    assert len(res.json()) >= 3
+
+    # Search + sort combination
+    res = client.get("/api/products", params={"name": "a", "sort": "price_desc"})
+    prices = [p["priceCents"] for p in res.json()]
+    assert prices == sorted(prices, reverse=True)
+    assert all("a" in p["name"].lower() for p in res.json())

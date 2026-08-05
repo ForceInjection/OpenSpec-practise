@@ -63,4 +63,40 @@ describe('领域与服务单元测试', () => {
     const found = catalog.getProduct('non-existent')
     assert.strictEqual(found, undefined)
   })
+
+  it('按名称模糊搜索', () => {
+    catalog.addProduct({ name: 'iPhone 15', priceCents: 5999, stock: 10 })
+    catalog.addProduct({ name: 'iPad Pro', priceCents: 7999, stock: 5 })
+    catalog.addProduct({ name: 'MacBook', priceCents: 9999, stock: 3 })
+
+    const hits = catalog.list('ipad')
+    assert.strictEqual(hits.length, 1)
+    assert.strictEqual(hits[0].name, 'iPad Pro')
+
+    const all = catalog.list()
+    assert.strictEqual(all.length, 3)
+
+    const none = catalog.list('nonexistent')
+    assert.strictEqual(none.length, 0)
+  })
+
+  it('按价格排序', () => {
+    catalog.addProduct({ name: 'A', priceCents: 300, stock: 1 })
+    catalog.addProduct({ name: 'B', priceCents: 100, stock: 1 })
+    catalog.addProduct({ name: 'C', priceCents: 200, stock: 1 })
+
+    const asc = catalog.list(undefined, 'price_asc')
+    assert.deepStrictEqual(asc.map(p => p.priceCents), [100, 200, 300])
+
+    const desc = catalog.list(undefined, 'price_desc')
+    assert.deepStrictEqual(desc.map(p => p.priceCents), [300, 200, 100])
+
+    // Invalid sort value falls back to natural order
+    const invalid = catalog.list(undefined, 'invalid')
+    assert.strictEqual(invalid.length, 3)
+
+    // Search + sort combination: only "A" contains 'a'
+    const combo = catalog.list('a', 'price_desc')
+    assert.deepStrictEqual(combo.map(p => p.priceCents), [300])
+  })
 })

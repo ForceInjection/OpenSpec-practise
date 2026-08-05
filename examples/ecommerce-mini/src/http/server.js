@@ -42,7 +42,9 @@ export function createServer() {
 
     try {
       if (pathname === '/api/products' && req.method === 'GET') {
-        return sendJson(res, 200, catalogService.list())
+        const name = url.searchParams.get('name')
+        const sort = url.searchParams.get('sort')
+        return sendJson(res, 200, catalogService.list(name, sort))
       }
 
       if (pathname === '/api/products' && req.method === 'POST') {

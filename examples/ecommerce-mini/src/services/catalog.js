@@ -3,8 +3,23 @@ export class CatalogService {
     this.repo = productRepo
   }
 
-  list() {
-    return this.repo.findAll()
+  list(name, sort) {
+    let products = this.repo.findAll()
+
+    // Optional name filter (case-insensitive substring match)
+    if (name) {
+      const keyword = name.toLowerCase()
+      products = products.filter(p => p.name.toLowerCase().includes(keyword))
+    }
+
+    // Optional sort by price (whitelist: price_asc / price_desc)
+    if (sort === 'price_asc') {
+      products.sort((a, b) => a.priceCents - b.priceCents)
+    } else if (sort === 'price_desc') {
+      products.sort((a, b) => b.priceCents - a.priceCents)
+    }
+
+    return products
   }
 
   getProduct(id) {

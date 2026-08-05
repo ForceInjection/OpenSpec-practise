@@ -2,6 +2,40 @@
 
 本项目跟随 OpenSpec（[Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec)）版本演进的实践记录。
 
+## v1.7.0 (2026-07-28)
+
+OpenSpec v1.7.0 是一个中型迭代（91 commits），核心变化：
+
+- **新增 `/opsx:update` 技能** — 修订既有 change 的规划文档，保持 proposal/specs/design/tasks 之间的一致性，不修改代码
+- **模板全面更新** — 移除 Claude 专属工具指令（AskUserQuestion/TodoWrite 改为通用描述），`view` 命令加入 store 支持，spec 描述强调 delta 语义
+- **新工具支持** — ZCode、CodeArts Agent、Hermes Agent
+- **Skills 发布** — workflow skills 发布至 skills.sh 平台
+- **默认 Store** — 每个仓库可设置一个默认 store，简化跨仓库工作流
+- **CLI 自动升级提示** — `openspec update` 检测到 CLI 版本过旧时主动提示升级
+- **Windsurf 更名** — adapter 跟随更名为 Devin Desktop
+
+本仓库跟进：
+
+- 切换到 core profile（启用官方推荐完整工作流，含 update）
+- 通过 `openspec update --force` 刷新全部技能和命令文件
+- 新增 `/opsx:update` 命令与 `openspec-update-change` 技能
+- 10 个文件更新（479 行新增）+ 2 个新文件
+
+### 完整工作流实践：add-product-search
+
+用 v1.7.0 的完整工作流（Explore → Propose → **Update** → Apply → Sync → Archive）新增「商品搜索与价格排序」功能，重点验证了 `/opsx:update` 新特性：
+
+1. **Explore** — 分析候选需求，选定「按名称搜索」作为最小可验证变更
+2. **Propose** — 生成 proposal/specs/design/tasks，声明 Modified Capability（catalog-management）
+3. **Update（v1.7.0 新特性）** — 实施前新增「价格排序」需求，4 个 artifacts 一致性修订：
+   - 判断排序是 ADDED（新关注点）而非 MODIFIED，避免 archive 时丢失细节
+   - specs 新增 4 个 Scenario（升序/降序/组合/无效值）
+4. **Apply** — 双实现（Node.js + Python）各改服务层与 HTTP 层，8/8 任务完成，测试全绿（10 + 4 pass）
+5. **Sync** — 智能合并到主 spec：MODIFIED 保留未提及内容，ADDED 新增 Requirement
+6. **Archive** — 一致性验证后归档至 `changes/archive/2026-07-28-add-product-search/`
+
+实践产物：`openspec/specs/catalog-management/spec.md` 更新为 4 个 Requirement、11 个 Scenario。详细复盘见 [v1.7.0 工作流实践文档](docs/openspec-v1.7.0-workflow-practice.md)。
+
 ## v1.6.0 (2026-07-10)
 
 OpenSpec v1.6.0 是一个小型迭代，核心变化：

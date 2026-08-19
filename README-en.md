@@ -93,7 +93,7 @@ Test data files used by the example projects.
 
 ## Core Features
 
-This project is based on **OpenSpec v1.5.0** and demonstrates the following core features:
+This project is based on **OpenSpec v1.9.0** and demonstrates the following core features:
 
 - **Explore First**: `/opsx:explore` acts as a thinking partner — investigate the codebase, weigh options, and clarify requirements before writing any specs or code. Zero-cost, low-risk exploration.
 - **Spec-Driven Development**: Define specifications first, then write code, ensuring AI and humans reach a shared understanding of requirements.

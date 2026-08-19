@@ -1,6 +1,6 @@
 # Error Handling Specification
 
-## Overview
+## Purpose
 
 统一错误处理能力，定义系统的标准错误响应格式和错误码体系。确保所有业务异常均以一致的结构返回给客户端，便于前端处理和调试。
 

@@ -1,6 +1,6 @@
 # Cart Management Specification
 
-## Overview
+## Purpose
 
 购物车管理能力，涵盖商品的添加、移除及数量限制规则。购物车是用户选购商品到下单结算之间的临时存储。
 

@@ -1,6 +1,6 @@
 # Catalog Management Specification
 
-## Overview
+## Purpose
 
 商品目录管理能力，涵盖商品的查询、上架与库存管理。商品是电商系统的核心资源，所有交易流程均以商品数据为基础。
 

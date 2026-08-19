@@ -1,6 +1,6 @@
 # Order Management Specification
 
-## Overview
+## Purpose
 
 订单管理能力，涵盖订单的创建、查询与总价计算。订单是交易的核心单据，订单创建过程协调购物车、库存扣减与价格计算。
 

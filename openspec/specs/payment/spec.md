@@ -1,6 +1,6 @@
 # Payment Specification
 
-## Overview
+## Purpose
 
 支付能力，涵盖订单支付与状态流转。支付是完成交易的最后一步，将订单从待支付状态转为已支付状态。
 

@@ -1,6 +1,6 @@
 # Domain Model Specification
 
-## Overview
+## Purpose
 
 核心业务实体定义，不依赖任何外部框架。本规范定义商品、用户、购物车、订单等领域模型的结构与约束，作为所有上层能力的数据基础。
 

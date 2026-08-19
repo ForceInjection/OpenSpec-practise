@@ -2,6 +2,36 @@
 
 本项目跟随 OpenSpec（[Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec)）版本演进的实践记录。
 
+## v1.9.0 (2026-08-13)
+
+OpenSpec v1.9.0 是一个修复为主的迭代（25 commits），核心变化：
+
+- **`validate --archived`** — 检查归档变更的任务完整性，可作为 CI 钩子
+- **Command Code 工具支持** — 新增 `--tools command-code`
+- **根解析更严格** — `list`/`validate` 在 OpenSpec 根外运行时明确报错
+- **归档保真修复** — sync 时保留 `## Requirements` 周围的空行、EOF 统一为单个换行
+- **schema fork 保真** — 保留注释、块标量风格和键顺序
+
+本仓库跟进：
+
+- CLI 升级至 1.9.0，通过 `openspec update --force` 刷新全部技能和命令文件
+- 12 个文件更新（256 行新增），模板新增规划边界（planning boundary）声明、能力路径保留、store 标志粘性等改进
+
+## v1.8.0 (2026-08-05)
+
+OpenSpec v1.8.0 是一个中型迭代（34 PRs），核心变化：
+
+- **非英语 spec 验证修复** — SHALL/MUST 在普通模式下改为指导性，中文需求可通过验证（strict 模式仍强制）——**直接影响我们的中文 spec 实践**
+- **新工具支持** — 通用 agents 目录、MiniMax Code、Atlassian Rovo Dev CLI、GitHub Copilot 云代理（opt-in）
+- **archive 退休能力** — `retire_capabilities: true` 可清理空能力 spec
+- **嵌套子任务计数** — tasks.md 的嵌套 checkbox 计入进度
+- **validate 提前捕获 scenario 丢失** — MODIFIED 需求会删除 scenario 时在编写期报错
+- **遥测配置** — `telemetry.enabled: false` 可关闭
+
+本仓库跟进：
+
+- CLI 升级至 1.8.0（v1.7.0 直接跳级，无 breaking change）
+
 ## v1.7.0 (2026-07-28)
 
 OpenSpec v1.7.0 是一个中型迭代（91 commits），核心变化：

@@ -68,6 +68,21 @@ export function createServer() {
         return sendJson(res, 200, cart)
       }
 
+      if (pathname === '/api/cart/items' && req.method === 'GET') {
+        // Mock user ID for dev
+        const userId = 'user_dev'
+        const cart = cartService.getCart(userId)
+        return sendJson(res, 200, cart)
+      }
+
+      if (pathname.startsWith('/api/cart/items/') && req.method === 'DELETE') {
+        const productId = pathname.split('/').pop()
+        // Mock user ID for dev
+        const userId = 'user_dev'
+        const cart = cartService.removeItem(userId, productId)
+        return sendJson(res, 200, cart)
+      }
+
       if (pathname === '/api/orders' && req.method === 'POST') {
         const body = await readJson(req)
         // Mock user ID for dev if not provided
@@ -92,6 +107,8 @@ export function createServer() {
         return sendError(res, 'OUT_OF_STOCK', '库存不足', 409)
       if (e.message === 'PRODUCT_NOT_FOUND')
         return sendError(res, 'PRODUCT_NOT_FOUND', '商品不存在', 404)
+      if (e.message === 'CART_ITEM_NOT_FOUND')
+        return sendError(res, 'CART_ITEM_NOT_FOUND', '购物车中不存在该商品', 404)
         
       console.error(e)
       sendError(res, 'INTERNAL_ERROR', e.message, 500)

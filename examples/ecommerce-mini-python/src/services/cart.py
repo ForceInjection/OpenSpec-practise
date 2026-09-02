@@ -41,6 +41,15 @@ class CartService:
         self.repo.save(user_id, cart)
         return cart
         
+    def remove_item(self, user_id: str, product_id: str) -> Cart:
+        cart = self.get_cart(user_id)
+        item = next((i for i in cart.items if i.product_id == product_id), None)
+        if not item:
+            raise ValueError("CART_ITEM_NOT_FOUND")
+        cart.items.remove(item)
+        self.repo.save(user_id, cart)
+        return cart
+
     def clear_cart(self, user_id: str):
         cart = Cart(userId=user_id, items=[])
         self.repo.save(user_id, cart)

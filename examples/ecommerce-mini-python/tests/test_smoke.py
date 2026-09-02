@@ -64,6 +64,44 @@ def test_out_of_stock():
     assert "out of stock" in resp.json()["detail"].lower()
 
 
+def test_cart_query_and_remove():
+    user_id = "user_cart_crud"
+    # Add two products
+    ids = []
+    for name, price in [("Cart Item A", 100), ("Cart Item B", 200)]:
+        res = client.post("/api/products", json={"name": name, "priceCents": price, "stock": 10})
+        assert res.status_code == 201
+        ids.append(res.json()["id"])
+
+    # Query empty cart (lazy-created for a fresh user)
+    res = client.get("/api/cart/items", params={"userId": user_id})
+    assert res.status_code == 200
+    assert res.json()["items"] == []
+
+    # Add both products
+    for pid in ids:
+        res = client.post("/api/cart/items", json={"userId": user_id, "productId": pid, "quantity": 1})
+        assert res.status_code == 200
+
+    # Query returns both items
+    res = client.get("/api/cart/items", params={"userId": user_id})
+    assert res.status_code == 200
+    cart = res.json()
+    assert len(cart["items"]) == 2
+
+    # Remove one: only the target item is removed
+    res = client.delete(f"/api/cart/items/{ids[0]}", params={"userId": user_id})
+    assert res.status_code == 200
+    cart = res.json()
+    assert len(cart["items"]) == 1
+    assert cart["items"][0]["productId"] == ids[1]
+
+    # Remove the same item again -> 404
+    res = client.delete(f"/api/cart/items/{ids[0]}", params={"userId": user_id})
+    assert res.status_code == 404
+    assert "Cart item not found" in res.json()["detail"]
+
+
 def test_get_product_by_id():
     # Add product
     res = client.post("/api/products", json={

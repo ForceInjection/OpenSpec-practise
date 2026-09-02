@@ -36,6 +36,15 @@ export class CartService {
     return cart
   }
 
+  removeItem(userId, productId) {
+    const cart = this.getCart(userId)
+    const index = cart.items.findIndex(i => i.productId === productId)
+    if (index === -1) throw new Error('CART_ITEM_NOT_FOUND')
+    cart.items.splice(index, 1)
+    this.cartRepo.save(cart)
+    return cart
+  }
+
   clearCart(userId) {
     const cart = { userId, items: [] }
     this.cartRepo.save(cart)

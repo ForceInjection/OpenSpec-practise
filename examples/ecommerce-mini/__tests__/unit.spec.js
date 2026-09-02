@@ -36,6 +36,29 @@ describe('领域与服务单元测试', () => {
     assert.strictEqual(c.items[0].quantity, 2)
   })
 
+  it('购物车移除商品', () => {
+    const p1 = catalog.addProduct({ name: 'A', priceCents: 100, stock: 10 })
+    const p2 = catalog.addProduct({ name: 'B', priceCents: 200, stock: 10 })
+    cart.addToCart('u1', p1.id, 2)
+    cart.addToCart('u1', p2.id, 1)
+
+    const c = cart.removeItem('u1', p1.id)
+    assert.strictEqual(c.items.length, 1)
+    assert.strictEqual(c.items[0].productId, p2.id)
+    assert.strictEqual(cart.getCart('u1').items.length, 1)
+  })
+
+  it('移除不存在的商品条目抛错且购物车不变', () => {
+    const p = catalog.addProduct({ name: 'A', priceCents: 100, stock: 10 })
+    cart.addToCart('u1', p.id, 1)
+    assert.throws(() => cart.removeItem('u1', 'non-existent'), /CART_ITEM_NOT_FOUND/)
+    assert.strictEqual(cart.getCart('u1').items.length, 1)
+  })
+
+  it('移除空购物车商品抛错', () => {
+    assert.throws(() => cart.removeItem('u2', 'anything'), /CART_ITEM_NOT_FOUND/)
+  })
+
   it('下单扣减库存', () => {
     const p = catalog.addProduct({ name: 'Hat', priceCents: 100, stock: 10 })
     cart.addToCart('u1', p.id, 2)

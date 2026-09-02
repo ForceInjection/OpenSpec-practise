@@ -59,6 +59,19 @@ def add_to_cart(req: AddToCartRequest):
             raise HTTPException(status_code=400, detail="Max quantity exceeded")
         raise e
 
+@app.get("/api/cart/items", response_model=Cart)
+def get_cart_items(userId: str = "user_dev"):
+    return cart_svc.get_cart(userId)
+
+@app.delete("/api/cart/items/{productId}", response_model=Cart)
+def remove_cart_item(productId: str, userId: str = "user_dev"):
+    try:
+        return cart_svc.remove_item(userId, productId)
+    except ValueError as e:
+        if str(e) == "CART_ITEM_NOT_FOUND":
+            raise HTTPException(status_code=404, detail="Cart item not found")
+        raise e
+
 @app.post("/api/orders", status_code=201, response_model=Order)
 def create_order(req: CreateOrderRequest):
     try:

@@ -22,7 +22,7 @@
 
 通过 `openspec init --tools claude` 生成的 AI 协作命令与技能，位于 `.claude/`。
 
-- **`.claude/commands/opsx/`**: 斜杠命令定义（`/opsx:explore`、`/opsx:propose`、`/opsx:apply`、`/opsx:sync`、`/opsx:archive`）。
+- **`.claude/commands/opsx/`**: 斜杠命令定义（`/opsx:explore`、`/opsx:propose`、`/opsx:update`、`/opsx:apply`、`/opsx:sync`、`/opsx:archive`）。
 - **`.claude/skills/`**: 对应的 AI 技能文件（SKILL.md），定义每步操作的详细指令。
 
 ### 2. 文档
@@ -93,11 +93,12 @@ SDD 工作流的完整规范文件，统一存放于 `openspec/`。
 
 ## 核心特性
 
-本项目基于 **OpenSpec v1.9.0**，演示了以下核心特性：
+本项目基于 **OpenSpec v1.11.0**，演示了以下核心特性：
 
 - **探索优先（Explore First）**: `/opsx:explore` 作为思考伙伴，在编写任何规范或代码之前先调查代码库、权衡选项、澄清需求——零成本的低风险探索。
 - **规范驱动开发**: 先定义规范，再编写代码，确保 AI 与人对需求达成一致。
 - **流式迭代（Fluid Workflow）**: Propose → Apply → Archive 各阶段不再锁死。可随时回溯修改规范，explore 可穿插在任意阶段。
+- **聚焦评审（Show --diff）**: `openspec show <change> --diff` 让 delta 评审只看真正变化的行——MODIFIED 需求虽须复述全部保留场景，diff 却只渲染实际变更。
 - **双语言实现**: 使用相同的规范驱动 Node.js (零依赖) 和 Python (FastAPI + Pydantic) 两套实现。
 - **完整测试覆盖**: 单元测试、集成测试、性能测试。
 - **Stores (Beta)**: 支持跨仓库规划。将规划集中在一个独立的 store 仓库中，多个代码仓库通过 `references` 引用只读上下文。
@@ -197,7 +198,8 @@ python -m uvicorn src.api.server:app --reload
 4. **动手**: 运行 `examples/ecommerce-mini` 和 `examples/ecommerce-mini-python`，体验规范驱动开发。两个实现均为同一套 OpenSpec 规范的产物。
 5. **实践 v1.5.0 工作流**: 查看 `openspec/changes/archive/2026-07-08-add-product-get-by-id/`，这是用 v1.5.0 完整工作流（Explore → Propose → Apply → Sync → Archive）新增的「按 ID 查询单个商品」功能。对比该 change 中的 proposal/design/specs/tasks 与最终代码改动（`server.js`、`server.py`），理解 SDD 从规范到实现的完整链路。
 6. **实践 v1.7.0 工作流**: 阅读 [v1.7.0 工作流实践文档](docs/openspec-v1.7.0-workflow-practice.md)，这是用完整工作流（Explore → Propose → **Update** → Apply → Sync → Archive）新增的「商品搜索与价格排序」功能，重点演示了 `/opsx:update` 如何在实施中修订规划文档并保持 artifacts 一致性。产物见 `openspec/changes/archive/2026-07-28-add-product-search/`。
-7. **研究**: 查看 `openspec/changes/archive/2025-01-27-v1-mvp/` 下的 MVP 规范文件，了解一个完整系统的规范如何从零构建。
+7. **实践 v1.11.0 工作流**: 阅读 [v1.11.0 工作流实践文档](docs/openspec-v1.11.0-workflow-practice.md)，这是用「购物车查询与商品移除」补齐 spec-code 缺口的实践，重点演示 `openspec show --diff` 如何让 MODIFIED delta 评审只看真正变化的行，以及 archive 内建 spec 合并。产物见 `openspec/changes/archive/2026-09-02-cart-query-and-remove/`。
+8. **研究**: 查看 `openspec/changes/archive/2025-01-27-v1-mvp/` 下的 MVP 规范文件，了解一个完整系统的规范如何从零构建。
 
 ---
 

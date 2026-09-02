@@ -16,33 +16,51 @@ describe('性能基线测试', () => {
   after(() => stop())
 
   it('下单接口 P99 < 100ms', async () => {
-    // Setup data
-    const res = await fetch(`${base}/api/products`, {
-        method: 'POST',
-        body: JSON.stringify({ name: 'Perf Item', priceCents: 100, stock: 1000 })
-    })
-    const product = await res.json()
-
-    const latencies = []
+    const USER_ID = 'user_dev'
     const REQUESTS = 50
 
-    for (let i = 0; i < REQUESTS; i++) {
-        // Add to cart first
-        await fetch(`${base}/api/cart/items`, {
-            method: 'POST',
-            body: JSON.stringify({ productId: product.id, quantity: 1 })
-        })
+    // Setup a product with enough stock for every successful order.
+    const productRes = await fetch(`${base}/api/products`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Perf Item', priceCents: 100, stock: 1000 }),
+    })
+    assert.strictEqual(productRes.status, 201)
+    const product = await productRes.json()
 
-        const start = performance.now()
-        await fetch(`${base}/api/orders`, {
-            method: 'POST',
-            body: JSON.stringify({ userId: `user_${i}` })
-        })
-        latencies.push(performance.now() - start)
+    const latencies = []
+
+    for (let i = 0; i < REQUESTS; i++) {
+      // The dev cart endpoint uses the fixed user_dev identity, so ordering
+      // must use the same user or the request returns CART_EMPTY (400).
+      const cartRes = await fetch(`${base}/api/cart/items`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: product.id, quantity: 1 }),
+      })
+      assert.strictEqual(cartRes.status, 200)
+      const cart = await cartRes.json()
+      assert.strictEqual(cart.userId, USER_ID)
+
+      // Measure the complete successful order response, including reading the
+      // JSON body, instead of recording only time-to-response-headers.
+      const start = performance.now()
+      const orderRes = await fetch(`${base}/api/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: USER_ID }),
+      })
+      const order = await orderRes.json()
+      const latency = performance.now() - start
+
+      assert.strictEqual(orderRes.status, 201)
+      assert.strictEqual(order.status, 'PENDING_PAYMENT')
+      assert.strictEqual(order.totalCents, 100)
+      latencies.push(latency)
     }
 
     latencies.sort((a, b) => a - b)
-    const p99Index = Math.floor(latencies.length * 0.99)
+    const p99Index = Math.ceil(latencies.length * 0.99) - 1
     const p99 = latencies[p99Index]
 
     console.log(`P99 Latency: ${p99.toFixed(2)}ms`)

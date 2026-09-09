@@ -214,6 +214,6 @@ To more efficiently implement OpenSpec specifications in real-world development,
 ## Related Links
 
 - [OpenSpec Official Repository](https://github.com/Fission-AI/OpenSpec)
-- [OpenSpec Official Documentation](https://github.com/Fission-AI/OpenSpec/tree/main/docs)
+- [OpenSpec Official Documentation](https://openspec.dev/docs)
 - [npm Package](https://www.npmjs.com/package/@fission-ai/openspec)
 - [DDD Skills Repository Online Project](https://github.com/ForceInjection/domain-driven-design-skills)

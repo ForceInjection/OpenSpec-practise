@@ -1305,7 +1305,7 @@ OpenSpec 强调“外部可观察行为”，但这不仅限于前端界面的�
 | -------------------- | -------------------------------------------------------------- |
 | 官方仓库             | <https://github.com/Fission-AI/OpenSpec>                       |
 | 快速入门             | <https://openspec.pro/getting-started/>                        |
-| 官方文档             | <https://github.com/Fission-AI/OpenSpec/tree/main/docs>        |
+| 官方文档             | <https://openspec.dev/docs>        |
 | npm 包               | <https://www.npmjs.com/package/@fission-ai/openspec>           |
 | 配套幻灯片（旧版）   | [openspec-user-manual-v1.pptx](./openspec-user-manual-v1.pptx) |
 | 配套幻灯片（当前版） | [openspec-user-manual-v2.pptx](./openspec-user-manual-v2.pptx) |

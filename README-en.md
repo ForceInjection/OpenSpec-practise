@@ -93,12 +93,13 @@ Test data files used by the example projects.
 
 ## Core Features
 
-This project is based on **OpenSpec v1.11.0** and demonstrates the following core features:
+This project is based on **OpenSpec v1.13.0** and demonstrates the following core features:
 
 - **Explore First**: `/opsx:explore` acts as a thinking partner — investigate the codebase, weigh options, and clarify requirements before writing any specs or code. Zero-cost, low-risk exploration.
 - **Spec-Driven Development**: Define specifications first, then write code, ensuring AI and humans reach a shared understanding of requirements.
 - **Fluid Workflow**: Propose → Apply → Archive phases are no longer locked. You can go back and revise specs at any time, and explore can be interleaved at any stage.
 - **Focused Review (Show --diff)**: `openspec show <change> --diff` lets delta review look only at lines that actually changed — although a MODIFIED requirement must restate every scenario it keeps, the diff renders just the real changes.
+- **Quality Guards (Findings Report)**: `openspec validate --report findings` produces a focused warnings/errors report; combined with the delta-parser anti-silent-failure fixes, spec drift is discovered earlier.
 - **Dual-Language Implementation**: Using the same specification to drive both Node.js (zero dependencies) and Python (FastAPI + Pydantic) implementations.
 - **Comprehensive Test Coverage**: Unit tests, integration tests, and performance tests.
 - **Stores (Beta)**: Cross-repository planning support. Centralize planning in a standalone store repo, with multiple code repos referencing read-only context via `references`.
@@ -199,7 +200,8 @@ Recommended learning order:
 5. **Practice v1.5.0 Workflow**: Browse `openspec/changes/archive/2026-07-08-add-product-get-by-id/`, a "query product by ID" feature added using the complete v1.5.0 workflow (Explore → Propose → Apply → Sync → Archive). Compare the proposal/design/specs/tasks in this change with the final code changes (`server.js`, `server.py`) to understand the complete SDD chain from specification to implementation.
 6. **Practice v1.7.0 Workflow**: Read the [v1.7.0 Workflow Practice](docs-en/openspec-v1.7.0-workflow-practice.md), a "product search and price sort" feature added using the complete workflow (Explore → Propose → **Update** → Apply → Sync → Archive), demonstrating how `/opsx:update` revises planning artifacts mid-implementation while keeping them coherent. Artifacts in `openspec/changes/archive/2026-07-28-add-product-search/`.
 7. **Practice v1.11.0 Workflow**: Read the [v1.11.0 Workflow Practice](docs-en/openspec-v1.11.0-workflow-practice.md), a change closing a spec–code gap with "cart query and item removal", demonstrating how `openspec show --diff` narrows MODIFIED delta review to genuinely changed lines, and how archive embeds the spec merge. Artifacts in `openspec/changes/archive/2026-09-02-cart-query-and-remove/`.
-8. **Research**: Browse the specification files under `openspec/changes/archive/2025-01-27-v1-mvp/` to learn how a complete system's specifications are built from scratch.
+8. **Practice v1.13.0 Workflow**: Read the [v1.13.0 Workflow Practice](docs-en/openspec-v1.13.0-workflow-practice.md), a change adding "order list query" that exercises the upgraded templates (explore spec inventory, propose context loading) and verifies `validate --report findings` catching 3 real spec issues on its first run. Artifacts in `openspec/changes/archive/2026-09-10-order-list-query/`.
+9. **Research**: Browse the specification files under `openspec/changes/archive/2025-01-27-v1-mvp/` to learn how a complete system's specifications are built from scratch.
 
 ---
 

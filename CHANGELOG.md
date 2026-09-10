@@ -2,6 +2,50 @@
 
 本项目跟随 OpenSpec（[Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec)）版本演进的实践记录。
 
+## v1.13.0 (2026-09-09)
+
+OpenSpec v1.13.0 是 delta 解析器与 archive 的健壮性迭代，主题是**消灭静默失败**：
+
+- **archive 不再改写 fenced 代码块** — 空行整理变为 fence-aware，YAML/Python 示例跨归档保持原样
+- **`*`/`+` 列表符的 REMOVED/RENAMED 生效** — 此前只有 `-` 被识别：validate 通过、archive 报成功、需求却未变
+- **重复 delta 段落全部生效** — 此前两个 `## ADDED Requirements` 只应用一份就归档
+- **apply 对无 delta specs 的 change 发出警告** — 提示写 specs 或 `skip_specs: true`
+- **explore 列出 spec 清单** — 新增 `openspec list --specs` 指导（`openspec list` 只显示 in-flight changes）
+- **propose 先加载项目上下文** — `openspec context --json` 确认 root 后才规划；无 root 时停下询问
+- **update 修复损坏的 command 文件** — 此前只比对 skill 文件
+
+本仓库跟进：
+
+- CLI 升级至 1.13.0，`openspec update --force` 刷新 8 个命令/技能文件（110 行新增）
+- explore 模板新增「Planning a Change」发现式提问与 spec 清单盘点；propose 模板新增 context 加载步骤
+- 实践 `order-list-query` 完整工作流，详见下方
+
+### 完整工作流实践：order-list-query
+
+用 v1.13.0 工作流（Explore → Propose → Apply → Archive）新增「订单列表查询」，重点验证了新模板与 findings 报告：
+
+1. **Explore（新模板）** — 按 `openspec list --specs` 盘点 7 个能力，对照双实现路由表选定订单列表缺口；发现 Python `Order` 模型缺 `user_id` 字段的双实现差异
+2. **Propose（新流程）** — `openspec context --json` 先行；ADDED「订单列表查询」3 场景；design 记录 5 决策（服务层过滤、缺参显式 400、Python 模型补 `user_id` 对齐双实现 JSON 等）
+3. **Apply** — 双实现各约 20 行；Node 集成测试再次踩中 dev 固定 `user_dev` 的坑（PR #11 同款），改为相对断言，多用户隔离由 Python 侧覆盖；Node 18/18、Python 6/6
+4. **findings 报告（v1.12 新特性）** — 首跑抓到 3 个真实问题：cart/payment Purpose 过短、product-query Purpose 仍是归档占位符，逐一修复后清零
+5. **Archive** — 合并 +1 added，归档至 `changes/archive/2026-09-10-order-list-query/`
+
+实践产物：主 spec `order-management` 更新为 4 个 Requirement。详细复盘见 [v1.13.0 工作流实践文档](docs/openspec-v1.13.0-workflow-practice.md)。
+
+## v1.12.0 (2026-09-03)
+
+OpenSpec v1.12.0 是校验报告与规划质量的迭代，核心变化：
+
+- **`validate --report findings`** — 只输出 errors/warnings/info 的聚焦报告，保留 totals 与 exit code（适合 CI）
+- **Code-grounded planning** — propose/explore 先检查代码、测试、文档再写 artifacts
+- **SourceCraft 工具支持**、init 目录 Git 跟踪修复、一致的 IDE 重启提示
+- **修复** — Node 20 兼容（chalk）、npm Git 安装无需 pnpm、`fast-uri` 安全补丁
+
+本仓库跟进：
+
+- v1.12.0 未单独停留，与 v1.13.0 一并跟进（两者均无 breaking change），CLI 一次性升级至 1.13.0
+- findings 报告在 v1.13.0 实践 `order-list-query` 中首次使用即发现 3 个真实问题
+
 ## v1.11.0 (2026-08-26)
 
 OpenSpec v1.11.0 是一个评审体验升级的迭代，核心变化：

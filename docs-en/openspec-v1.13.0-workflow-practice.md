@@ -83,6 +83,7 @@ From v1.9.0 through v1.13.0, five upgrades kept reinforcing the same thing: spec
 
 - The dev server's fixed `user_dev` mock identity has now interfered with integration tests twice; if a future practice is user-scoped (order ownership, payment), it's worth making the dev identity parameterizable.
 - The payment capability remains the largest "complete spec, zero code" gap — a good candidate for a standalone medium-sized practice.
+- Confirmed while reviewing this change: Python has never implemented `GET /api/orders/{id}` — the spec's "订单查询" requirement (2 scenarios) is currently implemented in Node only — a good candidate for a small follow-up practice.
 
 ---
 

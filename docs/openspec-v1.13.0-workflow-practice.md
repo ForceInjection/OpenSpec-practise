@@ -83,6 +83,7 @@ Totals: 7 passed, 0 failed (7 items)
 
 - dev 服务器固定 `user_dev` 的 mock 身份模型已两次干扰集成测试，未来若再做用户维度的实践（如订单归属、支付），值得评估把 dev 身份改为可传参
 - payment 能力仍是"spec 完整、代码为零"的最大缺口，适合作为一次独立的中型实践
+- 本次变更评审时新确认：Python 端从未实现 `GET /api/orders/{id}`，主 spec「订单查询」需求（2 场景）目前仅在 Node 落地——可作为下次小型实践的候选
 
 ---
 

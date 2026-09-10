@@ -95,4 +95,49 @@ describe('集成测试 (E2E)', () => {
     const err = await missRes.json()
     assert.strictEqual(err.code, 'CART_ITEM_NOT_FOUND')
   })
+
+  it('订单列表查询', async () => {
+    // 1. 上架商品
+    const res1 = await fetch(`${base}/api/products`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Order List Item', priceCents: 100, stock: 10 }),
+    })
+    assert.strictEqual(res1.status, 201)
+    const product = await res1.json()
+
+    // 2. 记录当前 user_dev 订单数（共享 server 实例，前面的测试已产生订单）
+    const before = (await (await fetch(`${base}/api/orders?userId=user_dev`)).json()).length
+
+    // 3. 加购并下 2 单（dev 购物车端点固定 user_dev，见 PR #11 说明）
+    for (let i = 0; i < 2; i++) {
+      await fetch(`${base}/api/cart/items`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: product.id, quantity: 1 }),
+      })
+      const r = await fetch(`${base}/api/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: 'user_dev' }),
+      })
+      assert.strictEqual(r.status, 201)
+    }
+
+    // 4. 列表 +2 且 userId 一致
+    const list = await (await fetch(`${base}/api/orders?userId=user_dev`)).json()
+    assert.strictEqual(list.length, before + 2)
+    assert.ok(list.every(o => o.userId === 'user_dev'))
+
+    // 5. 无订单用户返回空数组
+    const noneRes = await fetch(`${base}/api/orders?userId=nobody`)
+    assert.strictEqual(noneRes.status, 200)
+    assert.deepStrictEqual(await noneRes.json(), [])
+
+    // 6. 缺 userId → 400 + MISSING_USER_ID
+    const missRes = await fetch(`${base}/api/orders`)
+    assert.strictEqual(missRes.status, 400)
+    const missBody = await missRes.json()
+    assert.strictEqual(missBody.code, 'MISSING_USER_ID')
+  })
 })

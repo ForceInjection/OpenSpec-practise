@@ -50,4 +50,9 @@ export class OrderService {
 
     return order
   }
+
+  listOrders(userId) {
+    if (!userId) throw new Error('MISSING_USER_ID')
+    return this.orderRepo.findAll().filter(o => o.userId === userId)
+  }
 }

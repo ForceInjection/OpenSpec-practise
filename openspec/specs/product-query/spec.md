@@ -1,7 +1,9 @@
 # product-query Specification
 
 ## Purpose
-TBD - created by archiving change add-product-get-by-id. Update Purpose after archive.
+
+商品查询能力，提供按 ID 获取单个商品详情的读取接口。商品详情是商品列表的补充视图，服务于前端详情页渲染、购物车加购校验与订单创建前的商品确认。
+
 ## Requirements
 ### Requirement: 按 ID 查询单个商品
 系统 SHALL 提供按商品 ID 查询单个商品详情的接口。客户端通过 GET 请求指定商品 ID，系统返回该商品的完整信息（id、name、priceCents、stock），若商品不存在则返回 404 错误。

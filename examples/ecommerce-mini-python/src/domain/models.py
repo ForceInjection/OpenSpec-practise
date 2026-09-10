@@ -23,6 +23,7 @@ class OrderItem(BaseModel):
 
 class Order(BaseModel):
     id: str
+    user_id: str = Field(..., alias="userId")
     status: Literal["PENDING_PAYMENT", "PAID"]
     total_cents: int = Field(..., ge=0, alias="totalCents")
     items: List[OrderItem]

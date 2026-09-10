@@ -102,6 +102,44 @@ def test_cart_query_and_remove():
     assert "Cart item not found" in res.json()["detail"]
 
 
+def test_order_list_query():
+    # Add product with enough stock
+    res = client.post("/api/products", json={"name": "Order List Item", "priceCents": 100, "stock": 10})
+    assert res.status_code == 201
+    pid = res.json()["id"]
+
+    def order_once(user_id):
+        r = client.post("/api/cart/items", json={"userId": user_id, "productId": pid, "quantity": 1})
+        assert r.status_code == 200
+        r = client.post("/api/orders", json={"userId": user_id})
+        assert r.status_code == 201
+        order = r.json()
+        # userId field is present and aligned with Node implementation
+        assert order["userId"] == user_id
+        return order
+
+    order_once("user_oa")
+    order_once("user_oa")
+    order_once("user_ob")
+
+    # user_oa has exactly 2 orders, others not mixed in
+    res = client.get("/api/orders", params={"userId": "user_oa"})
+    assert res.status_code == 200
+    orders = res.json()
+    assert len(orders) == 2
+    assert all(o["userId"] == "user_oa" for o in orders)
+
+    # User with no orders -> empty array
+    res = client.get("/api/orders", params={"userId": "nobody"})
+    assert res.status_code == 200
+    assert res.json() == []
+
+    # Missing userId -> 400 MISSING_USER_ID
+    res = client.get("/api/orders")
+    assert res.status_code == 400
+    assert "Missing userId" in res.json()["detail"]
+
+
 def test_get_product_by_id():
     # Add product
     res = client.post("/api/products", json={

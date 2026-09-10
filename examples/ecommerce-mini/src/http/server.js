@@ -90,7 +90,13 @@ export function createServer() {
         const order = orderService.createOrder(userId)
         return sendJson(res, 201, order)
       }
-      
+
+      if (pathname === '/api/orders' && req.method === 'GET') {
+        const userId = url.searchParams.get('userId')
+        const list = orderService.listOrders(userId)
+        return sendJson(res, 200, list)
+      }
+
       if (pathname.startsWith('/api/orders/') && req.method === 'GET') {
           const id = pathname.split('/').pop()
           const order = orderRepo.findById(id)
@@ -109,6 +115,8 @@ export function createServer() {
         return sendError(res, 'PRODUCT_NOT_FOUND', '商品不存在', 404)
       if (e.message === 'CART_ITEM_NOT_FOUND')
         return sendError(res, 'CART_ITEM_NOT_FOUND', '购物车中不存在该商品', 404)
+      if (e.message === 'MISSING_USER_ID')
+        return sendError(res, 'MISSING_USER_ID', '缺少 userId 参数', 400)
         
       console.error(e)
       sendError(res, 'INTERNAL_ERROR', e.message, 500)

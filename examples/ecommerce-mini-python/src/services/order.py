@@ -1,4 +1,5 @@
 import uuid
+from typing import List
 from ..domain.models import Order, OrderItem
 from ..repo.memory import MemoryRepo
 from .cart import CartService
@@ -45,6 +46,7 @@ class OrderService:
         # 4. Create Order
         order = Order(
             id=f"order_{uuid.uuid4().hex[:8]}",
+            userId=user_id,
             status="PENDING_PAYMENT",
             totalCents=total_cents,
             items=order_items
@@ -55,3 +57,8 @@ class OrderService:
         self.cart_svc.clear_cart(user_id)
 
         return order
+
+    def list_orders(self, user_id: str) -> List[Order]:
+        if not user_id:
+            raise ValueError("MISSING_USER_ID")
+        return [o for o in self.repo.find_all() if o.user_id == user_id]

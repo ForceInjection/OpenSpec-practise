@@ -42,4 +42,8 @@ export class OrderRepo {
   findById(id) {
     return this.orders.get(id)
   }
+
+  findAll() {
+    return Array.from(this.orders.values())
+  }
 }

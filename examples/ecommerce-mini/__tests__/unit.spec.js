@@ -63,10 +63,40 @@ describe('领域与服务单元测试', () => {
     const p = catalog.addProduct({ name: 'Hat', priceCents: 100, stock: 10 })
     cart.addToCart('u1', p.id, 2)
     const order = orders.createOrder('u1')
-    
+
     assert.ok(order.id)
     assert.strictEqual(order.totalCents, 200)
     assert.strictEqual(catalog.getProduct(p.id).stock, 8)
+  })
+
+  it('订单列表按用户过滤', () => {
+    const p = catalog.addProduct({ name: 'Item', priceCents: 100, stock: 10 })
+    cart.addToCart('u1', p.id, 1)
+    orders.createOrder('u1')
+    cart.addToCart('u2', p.id, 1)
+    orders.createOrder('u2')
+
+    const list = orders.listOrders('u1')
+    assert.strictEqual(list.length, 1)
+    assert.ok(list.every(o => o.userId === 'u1'))
+
+    assert.strictEqual(orders.listOrders('u3').length, 0)
+  })
+
+  it('订单列表按创建顺序返回', () => {
+    const p = catalog.addProduct({ name: 'Seq', priceCents: 100, stock: 10 })
+    cart.addToCart('u1', p.id, 1)
+    const o1 = orders.createOrder('u1').id
+    cart.addToCart('u1', p.id, 1)
+    const o2 = orders.createOrder('u1').id
+
+    const list = orders.listOrders('u1')
+    assert.deepStrictEqual(list.map(o => o.id), [o1, o2])
+  })
+
+  it('订单列表空 userId 抛错', () => {
+    assert.throws(() => orders.listOrders(''), /MISSING_USER_ID/)
+    assert.throws(() => orders.listOrders(undefined), /MISSING_USER_ID/)
   })
   
   it('库存不足抛错', () => {

@@ -82,3 +82,12 @@ def create_order(req: CreateOrderRequest):
         if str(e) == "OUT_OF_STOCK":
             raise HTTPException(status_code=409, detail="Out of stock")
         raise e
+
+@app.get("/api/orders", response_model=List[Order])
+def list_orders(userId: Optional[str] = None):
+    try:
+        return order_svc.list_orders(userId)
+    except ValueError as e:
+        if str(e) == "MISSING_USER_ID":
+            raise HTTPException(status_code=400, detail="Missing userId")
+        raise e

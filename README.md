@@ -215,6 +215,6 @@ python -m uvicorn src.api.server:app --reload
 
 - [CHANGELOG](./CHANGELOG.md) — 本项目跟随 OpenSpec 版本的演进记录
 - [OpenSpec 官方仓库](https://github.com/Fission-AI/OpenSpec)
-- [OpenSpec 官方文档](https://github.com/Fission-AI/OpenSpec/tree/main/docs)
+- [OpenSpec 官方文档](https://openspec.dev/docs)
 - [npm 包](https://www.npmjs.com/package/@fission-ai/openspec)
 - [DDD 技能库在线项目](https://github.com/ForceInjection/domain-driven-design-skills)

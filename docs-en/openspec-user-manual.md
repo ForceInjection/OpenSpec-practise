@@ -1272,7 +1272,7 @@ Complex business logic often makes Specs difficult to read. In such cases, archi
 | ------------------------------ | -------------------------------------------------------------------- |
 | Official repository            | <https://github.com/Fission-AI/OpenSpec>                             |
 | Getting started                | <https://openspec.pro/getting-started/>                              |
-| Official documentation         | <https://github.com/Fission-AI/OpenSpec/tree/main/docs>              |
+| Official documentation         | <https://openspec.dev/docs>              |
 | npm package                    | <https://www.npmjs.com/package/@fission-ai/openspec>                 |
 | Companion slides (old version) | [openspec-user-manual-v1.pptx](../docs/openspec-user-manual-v1.pptx) |
 | Companion slides (current)     | [openspec-user-manual-v2.pptx](../docs/openspec-user-manual-v2.pptx) |

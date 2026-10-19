@@ -206,3 +206,43 @@ def test_search_and_sort():
     prices = [p["priceCents"] for p in res.json()]
     assert prices == sorted(prices, reverse=True)
     assert all("a" in p["name"].lower() for p in res.json())
+
+
+def test_order_get_by_id():
+    user_id = "user_order_detail"
+
+    # Create product -> cart -> order
+    res = client.post("/api/products", json={
+        "name": "Order Detail Item",
+        "priceCents": 300,
+        "stock": 5
+    })
+    assert res.status_code == 201
+    pid = res.json()["id"]
+
+    res = client.post("/api/cart/items", json={
+        "userId": user_id,
+        "productId": pid,
+        "quantity": 2
+    })
+    assert res.status_code == 200
+
+    res = client.post("/api/orders", json={"userId": user_id})
+    assert res.status_code == 201
+    order = res.json()
+
+    # Query existing order -> 200 with camelCase fields
+    res = client.get(f"/api/orders/{order['id']}")
+    assert res.status_code == 200
+    fetched = res.json()
+    assert fetched["id"] == order["id"]
+    assert fetched["userId"] == user_id
+    assert fetched["status"] == "PENDING_PAYMENT"
+    assert fetched["totalCents"] == 600
+    assert fetched["items"][0]["productId"] == pid
+    assert fetched["items"][0]["priceCents"] == 300
+
+    # Query non-existent order -> 404
+    res = client.get("/api/orders/order_does_not_exist")
+    assert res.status_code == 404
+    assert "Order not found" in res.json()["detail"]

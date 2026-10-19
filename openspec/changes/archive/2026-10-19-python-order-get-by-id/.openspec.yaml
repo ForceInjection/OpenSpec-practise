@@ -1,0 +1,4 @@
+schema: spec-driven
+created: 2026-10-19
+goal: Close the Python implementation gap for GET /api/orders/{id}
+skip_specs: true

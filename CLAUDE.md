@@ -4,97 +4,146 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is **OpenSpec Practise** — a learning and demonstration repository for **Spec-Driven Development (SDD)** using the OpenSpec framework (v1.5.0). It contains a minimal e-commerce system implemented in both Node.js and Python, all driven by OpenSpec specifications. The core idea: define specifications first (proposal → design → specs → tasks), then write code, ensuring humans and AI share the same understanding of requirements.
+**OpenSpec Practise** is a learning/demonstration repository for Spec-Driven Development (SDD) using **OpenSpec v1.14.3**. A minimal e-commerce system is implemented twice — Node.js (v20+, zero npm dependencies, native `http`) and Python (FastAPI + Pydantic) — from the same OpenSpec specifications. The point is to demonstrate the full chain: intent → spec → code, with humans and AI sharing one source of truth.
 
-## Repository Architecture
+Main specs cover 7 capabilities: `cart-management`, `catalog-management`, `domain-model`, `error-handling`, `order-management`, `payment`, and `product-query`. All changes are archived under `openspec/changes/archive/`; there is currently no active change.
+
+## Repository Layout
 
 ```text
-docs/                          # Chinese documentation (manuals, guides, analysis)
-docs-en/                       # English documentation (same content, translated)
-openspec/                      # Root OpenSpec configuration for this project
-  config.yaml                  #   Project context, rules, schema definition
-.claude/                       # Claude Code native AI commands and skills (v1.5.0)
-  commands/opsx/               #   /opsx:propose, /opsx:apply, /opsx:archive, /opsx:explore, /opsx:sync
-  skills/                      #   Corresponding skill definitions (SKILL.md)
+openspec/                      # Root OpenSpec project (NOT under examples/)
+  config.yaml                  # Project context + schema rules injected into planning
+  specs/                       # Main specs — the single source of truth
+  changes/                     # Active changes (currently empty)
+  changes/archive/             # Archived changes: YYYY-MM-DD-<name>/
+.claude/
+  commands/opsx/               # /opsx:explore|propose|update|apply|sync|archive
+  skills/                      # openspec-* skills backing those commands
 examples/
-  ecommerce-mini/              # Node.js implementation (v20+, zero npm deps, native http)
-    src/domain/                #   Entity type definitions (JSDoc) + pure domain logic
-    src/services/              #   Use-case orchestration (CartService, CatalogService, OrderService)
-    src/http/                  #   HTTP layer — server.js (dev), server.prod.js (prod with JWT + file persistence)
-    src/repo/                  #   In-memory Map-based repositories
-    src/persist/               #   File-based JSON persistence (FileStore)
-    __tests__/                 #   unit.spec.js (service-level), integration.spec.js (E2E), performance.spec.js
-    data/                      #   Seed data: products.json, carts.json, orders.json
-  ecommerce-mini-python/       # Python implementation (FastAPI + Pydantic)
-    src/domain/models.py       #   Pydantic models (Product, Cart, Order, CartItem, OrderItem)
-    src/services/              #   Business logic (cart.py, catalog.py, order.py)
-    src/api/server.py          #   FastAPI app with all endpoints
-    src/repo/memory.py         #   Generic MemoryRepo[T]
-    tests/test_smoke.py        #   Pytest smoke/integration tests via TestClient
-  openspec/                    # Root: specifications driving both implementations
-    config.yaml                #   Project context, rules, store/references support (v1.5.0)
-    specs/                     #   Master specs: cart/catalog/order/payment/domain-model/error-handling
-    changes/                   #   Active changes
-    changes/archive/           #   Archived: 2025-01-27-v1-mvp (proposal/design/specs/tasks)
+  ecommerce-mini/              # Node.js implementation
+  ecommerce-mini-python/       # Python implementation
+docs/                          # Chinese documentation (manuals, guides, practice write-ups)
+docs-en/                       # English mirrors of docs/
+README.md / README-en.md       # Bilingual project overview
+CHANGELOG.md                   # Per-OpenSpec-version upgrade and practice history
 ```
-
-## Layered Architecture
-
-Both implementations follow the same four-layer architecture with strict dependency direction:
-
-```text
-HTTP Layer ──► Service Layer ──► Domain Layer
-                    │
-                    └──► Repository Layer ──► Data Store (Map / File)
-```
-
-| Layer      | Node.js dir                 | Python dir      | Responsibility                                                                                       |
-| ---------- | --------------------------- | --------------- | ---------------------------------------------------------------------------------------------------- |
-| HTTP       | `src/http/`                 | `src/api/`      | Route handling, JSON parse/format, error→HTTP status mapping                                         |
-| Service    | `src/services/`             | `src/services/` | Use-case orchestration (createOrder: validate cart → check stock → deduct → save order → clear cart) |
-| Domain     | `src/domain/`               | `src/domain/`   | Pure entities/types with no dependencies (JSDoc typedefs / Pydantic models)                          |
-| Repository | `src/repo/`, `src/persist/` | `src/repo/`     | Data access; `Map` in dev, `FileStore` in prod (Node.js only)                                        |
-
-Key design decisions:
-
-- All prices in **integer cents** (`priceCents`) to avoid floating-point issues.
-- Node.js uses native `http` module (zero dependencies); Python uses FastAPI for type safety and auto-docs.
-- MVP uses in-memory storage with single-threaded atomicity; prod extends with file persistence.
 
 ## Common Commands
 
 ### Node.js (`examples/ecommerce-mini/`)
 
 ```bash
-npm test              # Run all tests (node:test runner — unit + integration + performance)
-npm start             # Dev server on port 3000 (in-memory storage, mock auth)
-npm run start:prod    # Prod server on port 3002 (file persistence + JWT auth)
+npm test                                              # all 18 tests (unit + integration + performance)
+node --test __tests__/unit.spec.js                    # one suite
+node --test --test-name-pattern="订单列表" __tests__/unit.spec.js   # one test by name
+node --test src/domain/logic.spec.js                  # standalone domain test (NOT part of npm test)
+npm start                                             # dev server, port 3000, in-memory
+node examples/ecommerce-mini/src/http/server.prod.js  # prod server, port 3002 — run from REPO ROOT
 ```
+
+Prod server notes:
+
+- **Run it from the repository root.** `FileStore` resolves `examples/ecommerce-mini/data/...` against `process.cwd()`; launching via `npm run start:prod` from the package directory resolves to a non-existent nested path, so the first write fails with ENOENT (HTTP 500).
+- The "auth" only checks that `Authorization` starts with `Bearer`; any token is accepted. `NO_AUTH=1` bypasses the check.
+- Prod implements a subset of routes: `GET/POST /api/products`, `POST /api/cart/items`, `POST /api/orders`, and `/metrics`. It has no product-by-id/search, no cart GET/DELETE, and no order list/get-by-id.
 
 ### Python (`examples/ecommerce-mini-python/`)
 
 ```bash
-pip install -r requirements.txt   # Install FastAPI, Pydantic, pytest, httpx, uvicorn
-pytest                            # Run test suite (smoke + out-of-stock)
-python -m uvicorn src.api.server:app --reload   # Dev server on port 8000
+.venv/bin/python -m pytest tests -q                              # all 7 tests
+.venv/bin/python -m pytest tests/test_smoke.py::test_smoke_flow  # one test
+.venv/bin/python -m pytest tests -k cart                         # tests matching a keyword
+.venv/bin/python -m uvicorn src.api.server:app --reload          # dev server, port 8000
 ```
 
-## OpenSpec SDD Workflow (v1.5.0)
+For a fresh environment: `pip install -r requirements.txt`. A local `.venv` (Python 3.13) exists but is gitignored.
 
-The SDD workflow uses these slash commands (available in `.claude/commands/opsx/`):
+### OpenSpec CLI
 
-1. **Explore** (`/opsx:explore`): Think through ideas, investigate the codebase, weigh options — before any artifact exists. A no-stakes thinking partner.
-2. **Propose** (`/opsx:propose <name>`): Create the change via `openspec new change` + `openspec instructions` CLI pattern. Generates proposal.md, design.md, tasks.md with schema-driven instructions.
-3. **Apply** (`/opsx:apply`): Implement tasks using `openspec instructions apply --json` for dynamic context. Works through task checklist, marking `- [ ]` → `- [x]`.
-4. **Sync** (`/opsx:sync`): 🆕 Synchronize delta specs back to main specs before archiving.
-5. **Archive** (`/opsx:archive`): Archive completed changes to `openspec/changes/archive/YYYY-MM-DD-<name>/`.
+```bash
+openspec context --json                                  # authoritative root; run before planning
+openspec list                                            # active changes only
+openspec list --specs                                    # capability inventory + requirement counts
+openspec list --archived                                 # archived changes (--all includes both)
+openspec status --change <name> --json                   # artifact status and paths
+openspec instructions <artifact-id> --change <name> --json
+openspec instructions apply --change <name> --json
+openspec show <name> --diff                              # review only the lines that changed
+openspec validate --specs --report findings              # focused warnings/errors
+openspec archive <name>                                  # merge delta specs + archive in one step
+openspec update --force                                  # refresh .claude commands/skills after CLI upgrade
+openspec version --check                                 # installed version vs latest
+```
 
-### v1.5.0 Key Changes
+## SDD Workflow (OpenSpec v1.14.3)
 
-- **Stores (beta)**: Standalone planning repos for cross-repo features. Managed via `openspec store setup/register/list/doctor/remove`. Config supports `store:` and `references:` fields.
-- **Fluid workflow**: Actions on a change can be invoked anytime — not phase-locked. Explore can hand off to propose, apply can suggest artifact updates, etc.
-- **Schema-driven artifacts**: Artifacts are defined by `schema.yaml`, not hardcoded. CLI provides instructions per artifact type via `openspec instructions <artifact-id>`.
+Slash commands live in `.claude/commands/opsx/` and are backed by matching skills. The default `core` profile installs the six commands below; `new`, `continue`, `ff`, `bulk-archive`, `verify`, and `onboard` are optional workflows enabled via `openspec config profile` followed by `openspec update`:
 
-Specs use **Given/When/Then** (Gherkin) format for scenarios. Every requirement includes a **Priority** (P0/P1/P2) and **Rationale**. Normative language uses SHALL or MUST.
+| Command                | Purpose                                                                                            |
+| ---------------------- | -------------------------------------------------------------------------------------------------- |
+| `/opsx:explore`        | Thinking partner: investigate code/specs and clarify requirements before any artifact exists.      |
+| `/opsx:propose <name>` | Create a change and generate `proposal.md`, `design.md`, `specs/`, and `tasks.md`.                 |
+| `/opsx:update`         | Revise existing planning artifacts and keep them coherent. Never edits code.                       |
+| `/opsx:apply`          | Implement tasks, marking `- [ ]` → `- [x]`.                                                        |
+| `/opsx:sync`           | Merge delta specs into main specs without archiving (optional standalone operation).               |
+| `/opsx:archive`        | Validate/complete, merge delta specs, and move the change to `changes/archive/YYYY-MM-DD-<name>/`. |
 
-The AI tooling is generated by `openspec init --tools claude` and updated via `openspec update`.
+Important workflow semantics:
+
+- Since v1.11.0, `openspec archive` performs the spec merge itself; `/opsx:sync` is only needed to publish spec changes while keeping a change active.
+- `openspec list` does not list capabilities; use `openspec list --specs`.
+- Delta specs mirror main capability paths under `specs/<capability>/spec.md` and use `## ADDED Requirements`, `## MODIFIED Requirements`, `## REMOVED Requirements`, or `## RENAMED Requirements`.
+- A MODIFIED requirement must restate the full requirement and every surviving scenario; validation rejects a delta that drops a scenario. Scenario-level renames are not supported.
+- A change with no spec-level behavior change (pure implementation alignment, refactor, tooling, docs) must set `skip_specs: true` in `.openspec.yaml`; validation then accepts zero deltas and the `specs` artifact shows as `skipped`.
+
+### Spec conventions
+
+From `openspec/config.yaml`:
+
+- Scenarios use Given/When/Then (Gherkin); normative requirement language uses SHALL or MUST.
+- Every requirement includes `**Priority**: P0/P1/P2` and a `**Rationale**:`.
+- Proposals name affected implementations (Node.js / Python / both) and map capabilities to spec folder names.
+- Designs include architecture diagrams (Mermaid or ASCII) and decisions with alternatives.
+- Tasks are dependency-ordered checkboxes that state which implementation(s) they apply to.
+
+Specs are written in Chinese, but the normative SHALL/MUST keywords stay English so strict validation works.
+
+## Architecture
+
+Both implementations use the same four-layer architecture with dependencies pointing inward:
+
+```text
+HTTP ──► Service ──► Domain
+            │
+            └──► Repository ──► store (in-memory Map / JSON file)
+```
+
+| Layer      | Node.js                                              | Python                                 | Responsibility                           |
+| ---------- | ---------------------------------------------------- | -------------------------------------- | ---------------------------------------- |
+| HTTP       | `src/http/server.js`, `server.prod.js`               | `src/api/server.py`                    | Routing, JSON parse/format, error→status |
+| Service    | `src/services/{catalog,cart,order}.js`               | `src/services/{catalog,cart,order}.py` | Use-case orchestration                   |
+| Domain     | `src/domain/types.js` (JSDoc), `logic.js`            | `src/domain/models.py` (Pydantic)      | Entity shapes and pure logic             |
+| Repository | `src/repo/memoryRepo.js`, `src/persist/fileStore.js` | `src/repo/memory.py` (`MemoryRepo[T]`) | Data access                              |
+
+Key invariants:
+
+- All prices are integer **cents** (`priceCents` / `price_cents`) — never floats.
+- Order creation is the central orchestration in both languages: validate non-empty cart → check stock and compute total → deduct stock → save order → clear cart. There is no real transaction; atomicity relies on the single-process model.
+- Node domain types are JSDoc-only (no runtime validation). Python Pydantic models validate and alias camelCase JSON to snake_case fields (`priceCents` ↔ `price_cents`, `userId` ↔ `user_id`).
+- Python's FastAPI app wires module-level `MemoryRepo` singletons in `server.py`, so state persists across requests and tests. Node's `createServer()` creates fresh repositories per call, which is how integration tests get isolation.
+- Error response format differs: Node returns the spec's `{code, message}`; Python raises `HTTPException`, producing FastAPI's `{detail: ...}` (Python tests assert `detail`).
+
+### Known implementation divergences
+
+Verify before assuming parity:
+
+- The `payment` capability is fully specified but has no implementation in either language.
+- The Node dev server fixes cart operations to `user_dev` and defaults order creation to `user_dev`; integration tests must use that identity or make relative assertions. Python cart endpoints default to `user_dev` but accept an explicit user ID.
+- The Node prod server lags the dev server in route coverage (see the commands section above).
+
+## Repository Conventions
+
+- `docs/` is Chinese and `docs-en/` is its English mirror; `README.md` / `README-en.md` are likewise paired. Keep both sides in sync when changing user-facing documentation.
+- `CHANGELOG.md` records each OpenSpec upgrade and the accompanying practice change. After upgrading the CLI, run `openspec update --force`, then update CHANGELOG/README/docs.
+- Commits follow Conventional Commits (`feat:`, `fix:`, `docs:`).
+- Archived changes are teaching material; don't delete or rewrite them when adding new changes.

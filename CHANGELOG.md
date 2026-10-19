@@ -2,6 +2,36 @@
 
 本项目跟随 OpenSpec（[Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec)）版本演进的实践记录。
 
+## v1.14.3 (2026-10-17)
+
+OpenSpec v1.13.1 至 v1.14.3 连续六个版本，均无 breaking change，主题从「消灭静默失败」转向**收紧安全与校验边界**：
+
+- **v1.13.1 安全加固** — 配置值不能再向 agent 指令注入内容；构造文件不能卡死 update/archive；仓库 `.npmrc` 不能重定向更新检查；skills/commands 按 profile 生成；`status` 输出 `Next:` 命令建议
+- **v1.13.2 verify 与 Windows** — `/opsx:verify` 不再把跳过的检查算作通过；Windows archive 不再残留锁文件；重写 CRLF 文件保持行尾；每个任务组自带测试与文档更新
+- **v1.14.0 工具与归档浏览** — 新增 Amp、Warp 等 10 种工具集成；`openspec list --archived/--all`；`openspec view` 显示工作流状态；`openspec version --check`；未知 `.openspec.yaml` 键告警
+- **v1.14.1 启动与写入** — 命令按需加载（`--version` 24 vs 485 modules）；agent 逐文件写 spec；需求超过 500 字符在 `--strict` 下失败；apply 完成后先 review 再 archive
+- **v1.14.2 扩展元数据** — `.openspec.yaml` 支持 `x-` 前缀扩展键；archive 丢弃 delta 文本时告警；支持符号链接的 `openspec/`、`changes/`、`specs/`
+- **v1.14.3 链接与边界** — `spec.md` 可指向项目内其他文件；propose/ff/continue/explore 的 glob 路径不得越出 change 目录；移除 `braces` 依赖；修复 CI 中 `validate --all` 挂起
+
+本仓库跟进：
+
+- CLI 升级至 1.14.3，`openspec update --force` 刷新 12 个命令/技能文件（6 commands + 6 skills，+353/−97）
+- 默认仍是 `core` profile 的 6 个命令；`new`、`continue`、`ff`、`bulk-archive`、`verify`、`onboard` 为可选工作流，需 `openspec config profile` 后 `openspec update`
+- 升级后回归：7 个主 spec、5 个归档 change、Node 18/18、Python 6/6 全部通过；本次实践后 Python 7/7
+- 兼容性检查：现有需求均短于 500 字符；归档 `.openspec.yaml` 仅含 `schema`/`created`（均为已识别键），`--strict` 不受影响
+
+### 完整工作流实践：python-order-get-by-id
+
+首次使用 `skip_specs: true` 完成一次**纯实现对齐**：
+
+1. **Explore** — `openspec list --specs` 盘点 7 个能力；确认 `order-management` 的「订单查询」需求已定义 200/404 两条场景，但 Python 端从未实现 `GET /api/orders/{id}`
+2. **Propose** — 先跑 `openspec context --json`；在 `.openspec.yaml` 声明 `skip_specs: true`，理由是行为契约已存在，不应为通过校验虚构需求；proposal/design/tasks 照常生成
+3. **Apply** — Python 新增 `OrderService.get_order`、`GET /api/orders/{id}` 路由与 `test_order_get_by_id`；404 沿用 FastAPI `detail` 通道；Node 端不改动
+4. **Validate** — `openspec validate python-order-get-by-id --type change` 通过并输出 skip_specs 说明；`openspec validate --specs --report findings` 7/7 无 findings；Node 18/18、Python 7/7
+5. **Archive** — `openspec archive python-order-get-by-id` 归档（无 delta 合并），归档后 `openspec validate --archived` 6/6
+
+详细复盘见 [v1.14.3 工作流实践文档](docs/openspec-v1.14.3-workflow-practice.md)。
+
 ## v1.13.0 (2026-09-09)
 
 OpenSpec v1.13.0 是 delta 解析器与 archive 的健壮性迭代，主题是**消灭静默失败**：

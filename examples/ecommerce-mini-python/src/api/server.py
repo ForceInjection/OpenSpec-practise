@@ -91,3 +91,10 @@ def list_orders(userId: Optional[str] = None):
         if str(e) == "MISSING_USER_ID":
             raise HTTPException(status_code=400, detail="Missing userId")
         raise e
+
+@app.get("/api/orders/{id}", response_model=Order)
+def get_order(id: str):
+    order = order_svc.get_order(id)
+    if order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return order

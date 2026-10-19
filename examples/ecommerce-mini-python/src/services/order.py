@@ -1,5 +1,5 @@
 import uuid
-from typing import List
+from typing import List, Optional
 from ..domain.models import Order, OrderItem
 from ..repo.memory import MemoryRepo
 from .cart import CartService
@@ -62,3 +62,6 @@ class OrderService:
         if not user_id:
             raise ValueError("MISSING_USER_ID")
         return [o for o in self.repo.find_all() if o.user_id == user_id]
+
+    def get_order(self, order_id: str) -> Optional[Order]:
+        return self.repo.find_by_id(order_id)

@@ -16,17 +16,17 @@
 
 #### Scenario: 成功支付订单
 
-Given 订单存在且状态为 PENDING_PAYMENT
-When 发送 POST /api/payments/:orderId
-Then 返回状态码 200
-And 订单状态变为 PAID
+- **GIVEN** 订单存在且状态为 PENDING_PAYMENT
+- **WHEN** 发送 POST /api/payments/:orderId
+- **THEN** 返回状态码 200
+- **AND** 订单状态变为 PAID
 
 #### Scenario: 支付不存在的订单
 
-Given 订单 ID 不存在
-When 发送 POST /api/payments/:orderId
-Then 返回状态码 404
-And 返回错误码 NOT_FOUND
+- **GIVEN** 订单 ID 不存在
+- **WHEN** 发送 POST /api/payments/:orderId
+- **THEN** 返回状态码 404
+- **AND** 返回错误码 NOT_FOUND
 
 ---
 
@@ -40,13 +40,13 @@ And 返回错误码 NOT_FOUND
 
 #### Scenario: 有效状态转换
 
-Given 订单状态为 PENDING_PAYMENT
-When 执行支付操作
-Then 订单状态变为 PAID
+- **GIVEN** 订单状态为 PENDING_PAYMENT
+- **WHEN** 执行支付操作
+- **THEN** 订单状态变为 PAID
 
 #### Scenario: 重复支付已完成的订单
 
-Given 订单状态已为 PAID
-When 再次执行支付操作
-Then 返回幂等成功或提示已支付
-And 不产生重复扣款
+- **GIVEN** 订单状态已为 PAID
+- **WHEN** 再次执行支付操作
+- **THEN** 返回幂等成功或提示已支付
+- **AND** 不产生重复扣款

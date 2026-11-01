@@ -16,36 +16,36 @@
 
 #### Scenario: 成功创建订单
 
-Given 用户购物车中有商品
-And 商品库存充足
-When 发送 POST /api/orders 携带 { userId }
-Then 返回状态码 201
-And 返回新创建的订单 Order
-And 订单状态为 PENDING_PAYMENT
-And 购物车被清空
-And 库存被扣减
+- **GIVEN** 用户购物车中有商品
+- **AND** 商品库存充足
+- **WHEN** 发送 POST /api/orders 携带 { userId }
+- **THEN** 返回状态码 201
+- **AND** 返回新创建的订单 Order
+- **AND** 订单状态为 PENDING_PAYMENT
+- **AND** 购物车被清空
+- **AND** 库存被扣减
 
 #### Scenario: 创建订单时购物车为空
 
-Given 用户购物车为空
-When 发送 POST /api/orders 携带 { userId }
-Then 返回状态码 400
-And 返回错误码 CART_EMPTY
+- **GIVEN** 用户购物车为空
+- **WHEN** 发送 POST /api/orders 携带 { userId }
+- **THEN** 返回状态码 400
+- **AND** 返回错误码 CART_EMPTY
 
 #### Scenario: 创建订单时库存不足
 
-Given 用户购物车中有商品
-And 商品库存不足
-When 发送 POST /api/orders 携带 { userId }
-Then 返回状态码 409
-And 返回错误码 OUT_OF_STOCK
+- **GIVEN** 用户购物车中有商品
+- **AND** 商品库存不足
+- **WHEN** 发送 POST /api/orders 携带 { userId }
+- **THEN** 返回状态码 409
+- **AND** 返回错误码 OUT_OF_STOCK
 
 #### Scenario: 幂等性创建订单
 
-Given 用户携带 Idempotency-Key 请求头
-When 重复发送相同的 POST /api/orders 请求
-Then 返回相同的订单信息
-And 不重复创建订单
+- **GIVEN** 用户携带 Idempotency-Key 请求头
+- **WHEN** 重复发送相同的 POST /api/orders 请求
+- **THEN** 返回相同的订单信息
+- **AND** 不重复创建订单
 
 ---
 
@@ -59,17 +59,17 @@ And 不重复创建订单
 
 #### Scenario: 查询存在的订单
 
-Given 订单 ID 存在
-When 发送 GET /api/orders/:id
-Then 返回状态码 200
-And 返回订单详情 Order
+- **GIVEN** 订单 ID 存在
+- **WHEN** 发送 GET /api/orders/:id
+- **THEN** 返回状态码 200
+- **AND** 返回订单详情 Order
 
 #### Scenario: 查询不存在的订单
 
-Given 订单 ID 不存在
-When 发送 GET /api/orders/:id
-Then 返回状态码 404
-And 返回错误码 NOT_FOUND
+- **GIVEN** 订单 ID 不存在
+- **WHEN** 发送 GET /api/orders/:id
+- **THEN** 返回状态码 404
+- **AND** 返回错误码 NOT_FOUND
 
 ---
 
@@ -83,18 +83,18 @@ And 返回错误码 NOT_FOUND
 
 #### Scenario: 计算单个商品订单总价
 
-Given 订单包含 1 个条目
-And 条目单价为 100 分，数量为 2
-When 计算订单总价
-Then 总价为 200 分
+- **GIVEN** 订单包含 1 个条目
+- **AND** 条目单价为 100 分，数量为 2
+- **WHEN** 计算订单总价
+- **THEN** 总价为 200 分
 
 #### Scenario: 计算多个商品订单总价
 
-Given 订单包含 2 个条目
-And 条目 1 单价 100 分，数量 2
-And 条目 2 单价 50 分，数量 1
-When 计算订单总价
-Then 总价为 250 分
+- **GIVEN** 订单包含 2 个条目
+- **AND** 条目 1 单价 100 分，数量 2
+- **AND** 条目 2 单价 50 分，数量 1
+- **WHEN** 计算订单总价
+- **THEN** 总价为 250 分
 
 ### Requirement: 订单列表查询
 
@@ -106,20 +106,20 @@ Then 总价为 250 分
 
 #### Scenario: 查询有订单的用户
 
-Given 用户 user_a 已创建 2 个订单
-When 发送 GET /api/orders?userId=user_a
-Then 返回状态码 200
-And 返回订单数组 Order[]，包含该用户的全部订单
+- **GIVEN** 用户 user_a 已创建 2 个订单
+- **WHEN** 发送 GET /api/orders?userId=user_a
+- **THEN** 返回状态码 200
+- **AND** 返回订单数组 Order[]，包含该用户的全部订单
 
 #### Scenario: 查询无订单的用户
 
-Given 用户 user_b 没有任何订单
-When 发送 GET /api/orders?userId=user_b
-Then 返回状态码 200
-And 返回空数组 Order[]
+- **GIVEN** 用户 user_b 没有任何订单
+- **WHEN** 发送 GET /api/orders?userId=user_b
+- **THEN** 返回状态码 200
+- **AND** 返回空数组 Order[]
 
 #### Scenario: 未提供 userId
 
-When 发送 GET /api/orders（不带 userId 参数）
-Then 返回状态码 400
-And 返回错误码 MISSING_USER_ID
+- **WHEN** 发送 GET /api/orders（不带 userId 参数）
+- **THEN** 返回状态码 400
+- **AND** 返回错误码 MISSING_USER_ID

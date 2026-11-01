@@ -16,12 +16,12 @@
 
 #### Scenario: 创建有效商品
 
-Given 需要创建新商品
-When 提供商品信息 { id, name, priceCents, stock }
-Then 商品实体创建成功
-And id 格式为 prod_xxxx
-And priceCents >= 0
-And stock >= 0
+- **GIVEN** 需要创建新商品
+- **WHEN** 提供商品信息 { id, name, priceCents, stock }
+- **THEN** 商品实体创建成功
+- **AND** id 格式为 prod_xxxx
+- **AND** priceCents >= 0
+- **AND** stock >= 0
 
 ---
 
@@ -35,10 +35,10 @@ And stock >= 0
 
 #### Scenario: 创建有效用户
 
-Given 需要创建新用户
-When 提供用户信息 { id, email, name }
-Then 用户实体创建成功
-And id 格式为 user_xxxx
+- **GIVEN** 需要创建新用户
+- **WHEN** 提供用户信息 { id, email, name }
+- **THEN** 用户实体创建成功
+- **AND** id 格式为 user_xxxx
 
 ---
 
@@ -52,10 +52,10 @@ And id 格式为 user_xxxx
 
 #### Scenario: 创建购物车
 
-Given 用户需要购物
-When 创建购物车
-Then 购物车包含 userId 和 items 数组
-And 每个条目包含 { id, productId, quantity }
+- **GIVEN** 用户需要购物
+- **WHEN** 创建购物车
+- **THEN** 购物车包含 userId 和 items 数组
+- **AND** 每个条目包含 { id, productId, quantity }
 
 ---
 
@@ -69,12 +69,12 @@ And 每个条目包含 { id, productId, quantity }
 
 #### Scenario: 创建有效订单
 
-Given 需要创建订单
-When 提供订单信息 { id, userId, status, totalCents, items }
-Then 订单实体创建成功
-And id 格式为 order_xxxx
-And status 为 PENDING_PAYMENT 或 PAID
-And totalCents >= 0
+- **GIVEN** 需要创建订单
+- **WHEN** 提供订单信息 { id, userId, status, totalCents, items }
+- **THEN** 订单实体创建成功
+- **AND** id 格式为 order_xxxx
+- **AND** status 为 PENDING_PAYMENT 或 PAID
+- **AND** totalCents >= 0
 
 ---
 
@@ -88,6 +88,6 @@ And totalCents >= 0
 
 #### Scenario: 创建订单条目
 
-Given 需要记录订单商品信息
-When 提供条目信息 { productId, priceCents, quantity }
-Then 条目记录商品 ID、下单时单价和购买数量
+- **GIVEN** 需要记录订单商品信息
+- **WHEN** 提供条目信息 { productId, priceCents, quantity }
+- **THEN** 条目记录商品 ID、下单时单价和购买数量

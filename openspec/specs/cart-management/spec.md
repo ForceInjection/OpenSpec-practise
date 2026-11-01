@@ -16,22 +16,22 @@
 
 #### Scenario: 添加商品到购物车
 
-Given 用户已登录且商品存在
-When 发送 POST /api/cart/items 携带 { productId, quantity }
-Then 返回状态码 200
-And 返回更新后的购物车 Cart
+- **GIVEN** 用户已登录且商品存在
+- **WHEN** 发送 POST /api/cart/items 携带 { productId, quantity }
+- **THEN** 返回状态码 200
+- **AND** 返回更新后的购物车 Cart
 
 #### Scenario: 添加已存在商品时数量累加
 
-Given 购物车中已存在某商品，数量为 2
-When 再次添加该商品，数量为 3
-Then 该商品在购物车中的数量变为 5
+- **GIVEN** 购物车中已存在某商品，数量为 2
+- **WHEN** 再次添加该商品，数量为 3
+- **THEN** 该商品在购物车中的数量变为 5
 
 #### Scenario: 添加不存在的商品
 
-Given 商品 ID 在系统中不存在
-When 尝试将该商品添加到购物车
-Then 抛出 PRODUCT_NOT_FOUND 错误
+- **GIVEN** 商品 ID 在系统中不存在
+- **WHEN** 尝试将该商品添加到购物车
+- **THEN** 抛出 PRODUCT_NOT_FOUND 错误
 
 ---
 
@@ -45,24 +45,24 @@ Then 抛出 PRODUCT_NOT_FOUND 错误
 
 #### Scenario: 移除购物车商品
 
-Given 购物车中存在商品条目
-When 发送 DELETE /api/cart/items/{productId}
-Then 返回状态码 200
-And 返回更新后的购物车 Cart，该商品条目已被移除
+- **GIVEN** 购物车中存在商品条目
+- **WHEN** 发送 DELETE /api/cart/items/{productId}
+- **THEN** 返回状态码 200
+- **AND** 返回更新后的购物车 Cart，该商品条目已被移除
 
 #### Scenario: 移除不存在于购物车的商品
 
-Given 购物车中不存在指定 productId 的商品条目
-When 发送 DELETE /api/cart/items/{productId}
-Then 抛出 CART_ITEM_NOT_FOUND 错误
-And 购物车保持不变
+- **GIVEN** 购物车中不存在指定 productId 的商品条目
+- **WHEN** 发送 DELETE /api/cart/items/{productId}
+- **THEN** 抛出 CART_ITEM_NOT_FOUND 错误
+- **AND** 购物车保持不变
 
 #### Scenario: 多条目购物车仅移除目标商品
 
-Given 购物车中包含商品 A 与商品 B
-When 发送 DELETE /api/cart/items/{productId-A}
-Then 商品 A 的条目被移除
-And 商品 B 的条目保留
+- **GIVEN** 购物车中包含商品 A 与商品 B
+- **WHEN** 发送 DELETE /api/cart/items/{productId-A}
+- **THEN** 商品 A 的条目被移除
+- **AND** 商品 B 的条目保留
 
 ---
 
@@ -76,23 +76,23 @@ And 商品 B 的条目保留
 
 #### Scenario: 添加商品数量在限制内
 
-Given 购物车中某商品数量为 0
-When 添加该商品数量为 99
-Then 添加成功
+- **GIVEN** 购物车中某商品数量为 0
+- **WHEN** 添加该商品数量为 99
+- **THEN** 添加成功
 
 #### Scenario: 添加商品数量超出限制
 
-Given 购物车中某商品数量为 0
-When 尝试添加该商品数量为 100
-Then 抛出 MAX_QUANTITY_EXCEEDED 错误
-And 购物车保持不变
+- **GIVEN** 购物车中某商品数量为 0
+- **WHEN** 尝试添加该商品数量为 100
+- **THEN** 抛出 MAX_QUANTITY_EXCEEDED 错误
+- **AND** 购物车保持不变
 
 #### Scenario: 累加后数量超出限制
 
-Given 购物车中某商品数量为 50
-When 尝试再添加该商品数量为 50
-Then 抛出 MAX_QUANTITY_EXCEEDED 错误
-And 购物车中该商品数量保持 50
+- **GIVEN** 购物车中某商品数量为 50
+- **WHEN** 尝试再添加该商品数量为 50
+- **THEN** 抛出 MAX_QUANTITY_EXCEEDED 错误
+- **AND** 购物车中该商品数量保持 50
 
 ### Requirement: 购物车查询
 
@@ -104,14 +104,14 @@ And 购物车中该商品数量保持 50
 
 #### Scenario: 查询空购物车
 
-Given 当前用户没有购物车记录
-When 发送 GET /api/cart/items
-Then 返回状态码 200
-And 返回购物车 Cart，items 为空数组
+- **GIVEN** 当前用户没有购物车记录
+- **WHEN** 发送 GET /api/cart/items
+- **THEN** 返回状态码 200
+- **AND** 返回购物车 Cart，items 为空数组
 
 #### Scenario: 查询含商品的购物车
 
-Given 当前用户购物车中已添加商品条目
-When 发送 GET /api/cart/items
-Then 返回状态码 200
-And 返回购物车 Cart，items 包含已添加的商品条目
+- **GIVEN** 当前用户购物车中已添加商品条目
+- **WHEN** 发送 GET /api/cart/items
+- **THEN** 返回状态码 200
+- **AND** 返回购物车 Cart，items 包含已添加的商品条目

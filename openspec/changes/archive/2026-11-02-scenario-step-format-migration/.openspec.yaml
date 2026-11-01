@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-11-02
+goal: Migrate main-spec scenarios to the canonical step list format required by
+  the v1.16.0 scenario-step check
+skip_specs: true

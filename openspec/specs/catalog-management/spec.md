@@ -16,24 +16,24 @@
 
 #### Scenario: 获取所有商品（无过滤）
 
-Given 系统中存在商品数据
-When 用户请求 GET /api/products（不带 name 参数）
-Then 返回状态码 200
-And 返回商品数组 Product[]，包含所有可用商品
+- **GIVEN** 系统中存在商品数据
+- **WHEN** 用户请求 GET /api/products（不带 name 参数）
+- **THEN** 返回状态码 200
+- **AND** 返回商品数组 Product[]，包含所有可用商品
 
 #### Scenario: 按名称模糊搜索
 
-Given 系统中存在商品数据
-When 用户请求 GET /api/products?name=<keyword>
-Then 返回状态码 200
-And 返回商品数组 Product[]，仅包含名称匹配 <keyword> 的商品（大小写不敏感的包含匹配）
+- **GIVEN** 系统中存在商品数据
+- **WHEN** 用户请求 GET /api/products?name=<keyword>
+- **THEN** 返回状态码 200
+- **AND** 返回商品数组 Product[]，仅包含名称匹配 <keyword> 的商品（大小写不敏感的包含匹配）
 
 #### Scenario: 搜索无结果
 
-Given 系统中存在商品数据，但没有商品名称匹配 <keyword>
-When 用户请求 GET /api/products?name=<keyword>
-Then 返回状态码 200
-And 返回空数组 Product[]
+- **GIVEN** 系统中存在商品数据，但没有商品名称匹配 <keyword>
+- **WHEN** 用户请求 GET /api/products?name=<keyword>
+- **THEN** 返回状态码 200
+- **AND** 返回空数组 Product[]
 
 ---
 
@@ -47,31 +47,31 @@ And 返回空数组 Product[]
 
 #### Scenario: 按价格升序排序
 
-Given 系统中存在多个不同价格的商品
-When 用户请求 GET /api/products?sort=price_asc
-Then 返回状态码 200
-And 返回商品数组 Product[]，按 priceCents 升序排列
+- **GIVEN** 系统中存在多个不同价格的商品
+- **WHEN** 用户请求 GET /api/products?sort=price_asc
+- **THEN** 返回状态码 200
+- **AND** 返回商品数组 Product[]，按 priceCents 升序排列
 
 #### Scenario: 按价格降序排序
 
-Given 系统中存在多个不同价格的商品
-When 用户请求 GET /api/products?sort=price_desc
-Then 返回状态码 200
-And 返回商品数组 Product[]，按 priceCents 降序排列
+- **GIVEN** 系统中存在多个不同价格的商品
+- **WHEN** 用户请求 GET /api/products?sort=price_desc
+- **THEN** 返回状态码 200
+- **AND** 返回商品数组 Product[]，按 priceCents 降序排列
 
 #### Scenario: 搜索与排序组合
 
-Given 系统中存在名称和价格各异的商品
-When 用户请求 GET /api/products?name=<keyword>&sort=price_asc
-Then 返回状态码 200
-And 返回名称匹配 <keyword> 的商品数组，按 priceCents 升序排列
+- **GIVEN** 系统中存在名称和价格各异的商品
+- **WHEN** 用户请求 GET /api/products?name=<keyword>&sort=price_asc
+- **THEN** 返回状态码 200
+- **AND** 返回名称匹配 <keyword> 的商品数组，按 priceCents 升序排列
 
 #### Scenario: 无效排序参数
 
-Given 系统中存在商品数据
-When 用户请求 GET /api/products?sort=invalid
-Then 返回状态码 200
-And 返回商品数组 Product[]，保持自然顺序（忽略无效的 sort 值）
+- **GIVEN** 系统中存在商品数据
+- **WHEN** 用户请求 GET /api/products?sort=invalid
+- **THEN** 返回状态码 200
+- **AND** 返回商品数组 Product[]，保持自然顺序（忽略无效的 sort 值）
 
 ---
 
@@ -85,16 +85,16 @@ And 返回商品数组 Product[]，保持自然顺序（忽略无效的 sort 值
 
 #### Scenario: 上架新商品
 
-Given 管理员需要添加新商品
-When 发送 POST /api/products 携带商品信息 { name, priceCents, stock }
-Then 返回状态码 201
-And 返回创建成功的商品对象 Product
+- **GIVEN** 管理员需要添加新商品
+- **WHEN** 发送 POST /api/products 携带商品信息 { name, priceCents, stock }
+- **THEN** 返回状态码 201
+- **AND** 返回创建成功的商品对象 Product
 
 #### Scenario: 自动生成商品 ID
 
-Given 上架请求未提供商品 ID
-When 系统处理商品创建
-Then 系统 SHALL 自动生成格式为 prod_xxxx 的唯一标识
+- **GIVEN** 上架请求未提供商品 ID
+- **WHEN** 系统处理商品创建
+- **THEN** 系统 SHALL 自动生成格式为 prod_xxxx 的唯一标识
 
 ---
 
@@ -108,14 +108,14 @@ Then 系统 SHALL 自动生成格式为 prod_xxxx 的唯一标识
 
 #### Scenario: 库存充足时扣减
 
-Given 商品库存为 5
-When 扣减 3 个库存
-Then 库存变为 2
-And 操作成功
+- **GIVEN** 商品库存为 5
+- **WHEN** 扣减 3 个库存
+- **THEN** 库存变为 2
+- **AND** 操作成功
 
 #### Scenario: 库存不足时扣减
 
-Given 商品库存为 5
-When 尝试扣减 6 个库存
-Then 抛出 OUT_OF_STOCK 错误
-And 库存保持不变
+- **GIVEN** 商品库存为 5
+- **WHEN** 尝试扣减 6 个库存
+- **THEN** 抛出 OUT_OF_STOCK 错误
+- **AND** 库存保持不变

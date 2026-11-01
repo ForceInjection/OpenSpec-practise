@@ -16,10 +16,10 @@
 
 #### Scenario: 返回标准错误格式
 
-Given 发生业务错误
-When 系统返回错误响应
-Then 响应体包含 code 和 message 字段
-And 格式为 { "code": "ERROR_CODE", "message": "Human readable message" }
+- **GIVEN** 发生业务错误
+- **WHEN** 系统返回错误响应
+- **THEN** 响应体包含 code 和 message 字段
+- **AND** 格式为 { "code": "ERROR_CODE", "message": "Human readable message" }
 
 ---
 
@@ -33,35 +33,35 @@ And 格式为 { "code": "ERROR_CODE", "message": "Human readable message" }
 
 #### Scenario: 库存不足错误
 
-Given 下单时商品库存不足
-When 系统返回错误
-Then 错误码为 OUT_OF_STOCK
-And HTTP 状态码为 409
+- **GIVEN** 下单时商品库存不足
+- **WHEN** 系统返回错误
+- **THEN** 错误码为 OUT_OF_STOCK
+- **AND** HTTP 状态码为 409
 
 #### Scenario: 购物车为空错误
 
-Given 用户尝试从空购物车下单
-When 系统返回错误
-Then 错误码为 CART_EMPTY
-And HTTP 状态码为 400
+- **GIVEN** 用户尝试从空购物车下单
+- **WHEN** 系统返回错误
+- **THEN** 错误码为 CART_EMPTY
+- **AND** HTTP 状态码为 400
 
 #### Scenario: 资源未找到错误
 
-Given 请求的资源（商品、订单等）不存在
-When 系统返回错误
-Then 错误码为 NOT_FOUND
-And HTTP 状态码为 404
+- **GIVEN** 请求的资源（商品、订单等）不存在
+- **WHEN** 系统返回错误
+- **THEN** 错误码为 NOT_FOUND
+- **AND** HTTP 状态码为 404
 
 #### Scenario: 未授权访问错误
 
-Given 用户未提供有效的认证凭据
-When 系统返回错误
-Then 错误码为 UNAUTHORIZED
-And HTTP 状态码为 401
+- **GIVEN** 用户未提供有效的认证凭据
+- **WHEN** 系统返回错误
+- **THEN** 错误码为 UNAUTHORIZED
+- **AND** HTTP 状态码为 401
 
 #### Scenario: 数量超限错误
 
-Given 购物车商品数量超过上限
-When 系统返回错误
-Then 错误码为 MAX_QUANTITY_EXCEEDED
-And HTTP 状态码为 400
+- **GIVEN** 购物车商品数量超过上限
+- **WHEN** 系统返回错误
+- **THEN** 错误码为 MAX_QUANTITY_EXCEEDED
+- **AND** HTTP 状态码为 400

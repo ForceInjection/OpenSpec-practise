@@ -23,7 +23,7 @@ rules:
     - State which language implementations are affected (Node.js / Python / both)
     - Include Capabilities section mapping to spec folder names
   specs:
-    - Use Given/When/Then (Gherkin) format for all Scenarios
+    - Use Given/When/Then (Gherkin) format for all Scenarios, written as list items with bold uppercase keywords (- **GIVEN**, - **WHEN**, - **THEN**, - **AND**), as required by the v1.16.0 scenario-step check
     - Every Requirement must include Priority (P0/P1/P2) and Rationale
     - Use SHALL or MUST for normative requirement language
   design:

@@ -2,6 +2,34 @@
 
 本项目跟随 OpenSpec（[Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec)）版本演进的实践记录。
 
+## v1.16.0 (2026-10-30)
+
+OpenSpec v1.15.0 与 v1.16.0 相继发布。v1.15.0 主打**安装与升级体验**，v1.16.0 带来一个 BREAKING 变更和新的 spec 校验：
+
+- **v1.15.0 独立安装与 dry-run** — 无需 Node.js 的一键安装（macOS/Linux/Windows 二进制，含 SHA256SUMS）；`openspec update --dry-run` 先预览将增删改哪些文件再动手；`--json` 命令提速；`/opsx:verify` 按精确名称匹配 REMOVED 需求
+- **v1.16.0 BREAKING: npm 安装要求 Node ≥ 22.12.0** — Node 20 已于 2026-04-30 EOL；独立二进制不受影响
+- **v1.16.0 Scenario 步骤检查** — 场景缺 WHEN/GIVEN 或 THEN 步骤时告警（主 spec 与 change delta 都检查），`--strict` 下失败；检查器识别的是列表格式 `- **WHEN** ...`
+- **v1.16.0 其他** — `openspec.dev` 安装入口；`config.yaml` 无效时 `validate` 退出码 1（此前静默通过并忽略全部规则）；store 建议提示；行内代码围栏与无空格标题的解析修复
+
+本仓库跟进：
+
+- CLI 升级至 1.16.0；首次使用 `openspec update --dry-run --json` 预览（6 个 skill 文件、0 失败），再 `--force` 刷新——本次仅 `generatedBy` 版本行变化，commands 无变化
+- **步骤检查暴露历史格式欠账**：`product-query` 用列表格式通过，其余 6 个主 spec 自 v1-MVP 起的裸关键字格式（`When 发送 POST ...`）不被识别，`--strict` 下 6/7 失败
+- 兼容性检查：本机 Node 26 ≥ 22.12，BREAKING 不影响；示例代码的 "Node v20+" 门槛与 CLI 门槛无关
+- 意外实测了 v1.16 新守护：一次错误的 `config.yaml` 编辑（规则文本含 `: ` 序列）令 `validate` 立即退出报错，而非静默忽略规则
+
+### 完整工作流实践：scenario-step-format-migration
+
+首次为**纯 spec 格式迁移**使用 `skip_specs: true`：
+
+1. **Explore/Propose** — 对比通过与失败的 spec 定位格式差异；决定直接迁移主 spec 而非写约 20 个 MODIFIED delta（纯格式差异会淹没 diff），change 声明 `skip_specs: true`
+2. **Apply** — 迁移脚本将 6 个主 spec、48 个场景、195 个步骤行转换为 `- **GIVEN**/**WHEN**/**THEN**/**AND**` 列表格式；脚本内置场景数/步骤数前后一致性断言；`git diff` 复核确认只有步骤行变化、场景名与内容零改动；`config.yaml` 的 specs 规则同步明确列表格式
+3. **Validate** — `validate --specs --strict` 从 1/7 恢复 7/7；findings 清零；`validate --archived` 6/6（归档 delta 不受此检查影响，保持教学原样）
+4. **回归** — Node 18/18、Python 7/7 全绿
+5. **Archive** — 归档至 `changes/archive/2026-11-02-scenario-step-format-migration/`
+
+详细复盘见 [v1.16.0 工作流实践文档](docs/openspec-v1.16.0-workflow-practice.md)。
+
 ## v1.14.3 (2026-10-17)
 
 OpenSpec v1.13.1 至 v1.14.3 连续六个版本，均无 breaking change，主题从「消灭静默失败」转向**收紧安全与校验边界**：

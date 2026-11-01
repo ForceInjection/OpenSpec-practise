@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**OpenSpec Practise** is a learning/demonstration repository for Spec-Driven Development (SDD) using **OpenSpec v1.14.3**. A minimal e-commerce system is implemented twice — Node.js (v20+, zero npm dependencies, native `http`) and Python (FastAPI + Pydantic) — from the same OpenSpec specifications. The point is to demonstrate the full chain: intent → spec → code, with humans and AI sharing one source of truth.
+**OpenSpec Practise** is a learning/demonstration repository for Spec-Driven Development (SDD) using **OpenSpec v1.16.0**. A minimal e-commerce system is implemented twice — Node.js (v20+, zero npm dependencies, native `http`) and Python (FastAPI + Pydantic) — from the same OpenSpec specifications. The point is to demonstrate the full chain: intent → spec → code, with humans and AI sharing one source of truth.
 
 Main specs cover 7 capabilities: `cart-management`, `catalog-management`, `domain-model`, `error-handling`, `order-management`, `payment`, and `product-query`. All changes are archived under `openspec/changes/archive/`; there is currently no active change.
 
@@ -71,11 +71,12 @@ openspec instructions apply --change <name> --json
 openspec show <name> --diff                              # review only the lines that changed
 openspec validate --specs --report findings              # focused warnings/errors
 openspec archive <name>                                  # merge delta specs + archive in one step
+openspec update --dry-run                                # preview what an update would change (no writes)
 openspec update --force                                  # refresh .claude commands/skills after CLI upgrade
 openspec version --check                                 # installed version vs latest
 ```
 
-## SDD Workflow (OpenSpec v1.14.3)
+## SDD Workflow (OpenSpec v1.16.0)
 
 Slash commands live in `.claude/commands/opsx/` and are backed by matching skills. The default `core` profile installs the six commands below; `new`, `continue`, `ff`, `bulk-archive`, `verify`, and `onboard` are optional workflows enabled via `openspec config profile` followed by `openspec update`:
 
@@ -100,7 +101,8 @@ Important workflow semantics:
 
 From `openspec/config.yaml`:
 
-- Scenarios use Given/When/Then (Gherkin); normative requirement language uses SHALL or MUST.
+- Scenarios use Given/When/Then (Gherkin) written as list items with bold uppercase keywords (`- **GIVEN**`, `- **WHEN**`, `- **THEN**`, `- **AND**`) — the v1.16.0 scenario-step check only recognizes this form; bare `Given/When/Then` lines fail under `--strict`. Normative requirement language uses SHALL or MUST.
+- The CLI's npm install requires Node ≥ 22.12.0 (v1.16.0 breaking change); the standalone binary has no Node requirement. The examples themselves still run on Node v20+.
 - Every requirement includes `**Priority**: P0/P1/P2` and a `**Rationale**:`.
 - Proposals name affected implementations (Node.js / Python / both) and map capabilities to spec folder names.
 - Designs include architecture diagrams (Mermaid or ASCII) and decisions with alternatives.

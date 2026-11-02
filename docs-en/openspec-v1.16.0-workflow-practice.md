@@ -4,6 +4,10 @@ OpenSpec shipped v1.15.0 (2026-10-24) and v1.16.0 (2026-10-30) in quick successi
 
 This article records the full upgrade: a first real run of `update --dry-run`, the historical format debt exposed by the step check, an accidental live test of the config.yaml guard, and a migration of 195 scenario steps carried out under `skip_specs`.
 
+![OpenSpec v1.16.0 scenario step check: bare keywords fail 6/7 under --strict, list format passes 7/7, 195 step lines migrated](../docs/assets/openspec-v1.16-scenario-step-check.png)
+
+_The same Gherkin, two writings: the v1.16.0 step check only recognizes the list format on the right; this practice migrated 195 step lines across 48 scenarios._
+
 ## 1. What Changed in the Two Releases
 
 ### 1.1 v1.15.0: Standalone Install and Dry-Run

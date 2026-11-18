@@ -140,4 +140,49 @@ describe('集成测试 (E2E)', () => {
     const missBody = await missRes.json()
     assert.strictEqual(missBody.code, 'MISSING_USER_ID')
   })
+
+  it('订单支付与幂等重复支付', async () => {
+    // 1. 上架 + 加购 + 下单
+    const r1 = await fetch(`${base}/api/products`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Pay Flow Item', priceCents: 700, stock: 5 }),
+    })
+    assert.strictEqual(r1.status, 201)
+    const product = await r1.json()
+
+    await fetch(`${base}/api/cart/items`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId: product.id, quantity: 2 }),
+    })
+    const r2 = await fetch(`${base}/api/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: 'user_dev' }),
+    })
+    assert.strictEqual(r2.status, 201)
+    const order = await r2.json()
+    assert.strictEqual(order.status, 'PENDING_PAYMENT')
+
+    // 2. 支付 -> 200 + PAID
+    const pay1 = await fetch(`${base}/api/payments/${order.id}`, { method: 'POST' })
+    assert.strictEqual(pay1.status, 200)
+    const paid = await pay1.json()
+    assert.strictEqual(paid.status, 'PAID')
+    assert.strictEqual(paid.totalCents, 1400)
+
+    // 3. 重复支付 -> 幂等 200 + PAID，同一订单
+    const pay2 = await fetch(`${base}/api/payments/${order.id}`, { method: 'POST' })
+    assert.strictEqual(pay2.status, 200)
+    const again = await pay2.json()
+    assert.strictEqual(again.status, 'PAID')
+    assert.strictEqual(again.id, order.id)
+
+    // 4. 支付不存在订单 -> 404 + NOT_FOUND
+    const miss = await fetch(`${base}/api/payments/order_missing`, { method: 'POST' })
+    assert.strictEqual(miss.status, 404)
+    const missBody = await miss.json()
+    assert.strictEqual(missBody.code, 'NOT_FOUND')
+  })
 })

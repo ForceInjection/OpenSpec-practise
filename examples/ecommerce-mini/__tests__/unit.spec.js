@@ -152,4 +152,31 @@ describe('领域与服务单元测试', () => {
     const combo = catalog.list('a', 'price_desc')
     assert.deepStrictEqual(combo.map(p => p.priceCents), [300])
   })
+
+  it('支付成功订单状态流转为 PAID', () => {
+    const p = catalog.addProduct({ name: 'Pay', priceCents: 100, stock: 10 })
+    cart.addToCart('u1', p.id, 1)
+    const order = orders.createOrder('u1')
+    assert.strictEqual(order.status, 'PENDING_PAYMENT')
+
+    const paid = orders.payOrder(order.id)
+    assert.strictEqual(paid.status, 'PAID')
+    assert.strictEqual(orders.listOrders('u1')[0].status, 'PAID')
+  })
+
+  it('支付不存在订单抛 NOT_FOUND', () => {
+    assert.throws(() => orders.payOrder('order_missing'), /NOT_FOUND/)
+  })
+
+  it('重复支付已支付订单幂等返回', () => {
+    const p = catalog.addProduct({ name: 'Again', priceCents: 100, stock: 10 })
+    cart.addToCart('u1', p.id, 1)
+    const order = orders.createOrder('u1')
+    const first = orders.payOrder(order.id)
+    const second = orders.payOrder(order.id)
+    assert.strictEqual(first.status, 'PAID')
+    assert.strictEqual(second.status, 'PAID')
+    assert.strictEqual(second.id, first.id)
+    assert.strictEqual(second.totalCents, first.totalCents)
+  })
 })

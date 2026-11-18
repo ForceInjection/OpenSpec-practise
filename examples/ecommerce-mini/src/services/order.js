@@ -55,4 +55,16 @@ export class OrderService {
     if (!userId) throw new Error('MISSING_USER_ID')
     return this.orderRepo.findAll().filter(o => o.userId === userId)
   }
+
+  payOrder(orderId) {
+    const order = this.orderRepo.findById(orderId)
+    if (!order) throw new Error('NOT_FOUND')
+
+    // State machine: only PENDING_PAYMENT -> PAID; repeat payment is idempotent
+    if (order.status === 'PENDING_PAYMENT') {
+      order.status = 'PAID'
+      this.orderRepo.save(order)
+    }
+    return order
+  }
 }

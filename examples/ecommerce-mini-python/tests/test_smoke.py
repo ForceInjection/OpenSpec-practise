@@ -246,3 +246,47 @@ def test_order_get_by_id():
     res = client.get("/api/orders/order_does_not_exist")
     assert res.status_code == 404
     assert "Order not found" in res.json()["detail"]
+
+def test_pay_order():
+    user_id = "user_payment"
+
+    # Create product -> cart -> order
+    res = client.post("/api/products", json={
+        "name": "Pay Flow Item",
+        "priceCents": 700,
+        "stock": 5
+    })
+    assert res.status_code == 201
+    pid = res.json()["id"]
+
+    res = client.post("/api/cart/items", json={
+        "userId": user_id,
+        "productId": pid,
+        "quantity": 2
+    })
+    assert res.status_code == 200
+
+    res = client.post("/api/orders", json={"userId": user_id})
+    assert res.status_code == 201
+    order = res.json()
+    assert order["status"] == "PENDING_PAYMENT"
+
+    # Pay -> 200 + PAID
+    res = client.post(f"/api/payments/{order['id']}")
+    assert res.status_code == 200
+    paid = res.json()
+    assert paid["status"] == "PAID"
+    assert paid["totalCents"] == 1400
+    assert paid["userId"] == user_id
+
+    # Repeat payment -> idempotent 200 + PAID, same order
+    res = client.post(f"/api/payments/{order['id']}")
+    assert res.status_code == 200
+    again = res.json()
+    assert again["status"] == "PAID"
+    assert again["id"] == order["id"]
+
+    # Pay missing order -> 404
+    res = client.post("/api/payments/order_missing")
+    assert res.status_code == 404
+    assert "Order not found" in res.json()["detail"]

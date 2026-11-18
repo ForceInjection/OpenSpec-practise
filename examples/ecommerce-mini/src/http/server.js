@@ -104,6 +104,12 @@ export function createServer() {
           return sendJson(res, 200, order)
       }
 
+      if (pathname.startsWith('/api/payments/') && req.method === 'POST') {
+        const id = pathname.split('/').pop()
+        const order = orderService.payOrder(id)
+        return sendJson(res, 200, order)
+      }
+
       sendError(res, 'NOT_FOUND', 'Endpoint not found', 404)
 
     } catch (e) {
@@ -117,6 +123,8 @@ export function createServer() {
         return sendError(res, 'CART_ITEM_NOT_FOUND', '购物车中不存在该商品', 404)
       if (e.message === 'MISSING_USER_ID')
         return sendError(res, 'MISSING_USER_ID', '缺少 userId 参数', 400)
+      if (e.message === 'NOT_FOUND')
+        return sendError(res, 'NOT_FOUND', 'Order not found', 404)
         
       console.error(e)
       sendError(res, 'INTERNAL_ERROR', e.message, 500)

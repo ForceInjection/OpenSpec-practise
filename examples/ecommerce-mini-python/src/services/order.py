@@ -65,3 +65,14 @@ class OrderService:
 
     def get_order(self, order_id: str) -> Optional[Order]:
         return self.repo.find_by_id(order_id)
+
+    def pay_order(self, order_id: str) -> Optional[Order]:
+        order = self.repo.find_by_id(order_id)
+        if order is None:
+            return None
+
+        # State machine: only PENDING_PAYMENT -> PAID; repeat payment is idempotent
+        if order.status == "PENDING_PAYMENT":
+            order.status = "PAID"
+            self.repo.save(order.id, order)
+        return order

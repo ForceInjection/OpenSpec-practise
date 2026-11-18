@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-11-18
+goal: Implement the payment capability in both implementations, closing the
+  largest spec-code gap
+skip_specs: true

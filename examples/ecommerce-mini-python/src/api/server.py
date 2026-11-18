@@ -98,3 +98,10 @@ def get_order(id: str):
     if order is None:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+@app.post("/api/payments/{id}", response_model=Order)
+def pay_order(id: str):
+    order = order_svc.pay_order(id)
+    if order is None:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return order

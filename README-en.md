@@ -22,8 +22,8 @@ This project consists of five core modules:
 
 AI collaboration commands and skills generated via `openspec init --tools claude`, located in `.claude/`.
 
-- **`.claude/commands/opsx/`**: Slash command definitions (`/opsx:explore`, `/opsx:propose`, `/opsx:update`, `/opsx:apply`, `/opsx:sync`, `/opsx:archive`).
-- **`.claude/skills/`**: Corresponding AI skill files (SKILL.md) with detailed step-by-step instructions.
+- **`.agents/skills/`**: Since OpenSpec 2.x, the single home of the skills (`openspec-explore`, `openspec-propose`, `openspec-update-change`, `openspec-apply-change`, `openspec-sync-specs`, `openspec-archive-change`).
+- **`.claude/skills/`**: Symlinks into `.agents/skills/` for Claude Code (since 2.0 the `/opsx:*` slash commands are removed; invoke skills by name or natural language).
 
 ### 2. Documentation
 
@@ -93,14 +93,15 @@ Test data files used by the example projects.
 
 ## Core Features
 
-This project is based on **OpenSpec v1.16.0** and demonstrates the following core features:
+This project is based on **OpenSpec v2.1.0** and demonstrates the following core features:
 
-- **Explore First**: `/opsx:explore` acts as a thinking partner — investigate the codebase, weigh options, and clarify requirements before writing any specs or code. Zero-cost, low-risk exploration.
+- **Explore First**: the `openspec-explore` skill acts as a thinking partner — investigate the codebase, weigh options, and clarify requirements before writing any specs or code. Zero-cost, low-risk exploration.
 - **Spec-Driven Development**: Define specifications first, then write code, ensuring AI and humans reach a shared understanding of requirements.
 - **Fluid Workflow**: Propose → Apply → Archive phases are no longer locked. You can go back and revise specs at any time, and explore can be interleaved at any stage.
 - **Focused Review (Show --diff)**: `openspec show <change> --diff` lets delta review look only at lines that actually changed — although a MODIFIED requirement must restate every scenario it keeps, the diff renders just the real changes.
 - **Quality Guards (Findings Report)**: `openspec validate --report findings` produces a focused warnings/errors report; combined with the delta-parser anti-silent-failure fixes, spec drift is discovered earlier.
-- **Tighter Boundaries (v1.13.1–v1.16.0)**: protections against configuration injection, path escapes, and symlink escapes, plus `openspec list --archived/--all`, `openspec version --check`, `update --dry-run`, and practices that use `skip_specs` for pure implementation alignment and spec format migration.
+- **Tighter Boundaries and the 2.x Migration (v1.13.1–v2.1.0)**: protections against configuration injection, path escapes, and symlink escapes, `update --dry-run`, skills unified in `.agents/skills/` (2.0 removed the `/opsx` commands), and practices that use `skip_specs` for pure implementation alignment and spec format migration.
+- **Order Lifecycle Closed**: "order → query → pay" covered in both implementations, with the PENDING_PAYMENT → PAID state machine and idempotent repeat payment.
 - **Dual-Language Implementation**: Using the same specification to drive both Node.js (zero dependencies) and Python (FastAPI + Pydantic) implementations.
 - **Comprehensive Test Coverage**: Unit tests, integration tests, and performance tests.
 - **Stores (Beta)**: Cross-repository planning support. Centralize planning in a standalone store repo, with multiple code repos referencing read-only context via `references`.
@@ -145,8 +146,8 @@ The table below shows the specific mapping relationship between OpenSpec core co
 
 OpenSpec v1.5.0's workflow highly aligns with DDD's iterative modeling, with special emphasis on explore-first and brownfield-first refactoring capabilities.
 
-- **Explore**: Use `/opsx:explore` to investigate the codebase, compare options, and clarify requirements at zero cost. DDD's strategic storming can unfold naturally during exploration.
-- **Propose**: Use `/opsx:propose` to initialize changes, dynamically fetching templates and context via `openspec instructions` to consolidate domain modeling conclusions.
+- **Explore**: Use the `openspec-explore` skill to investigate the codebase, compare options, and clarify requirements at zero cost. DDD's strategic storming can unfold naturally during exploration.
+- **Propose**: Use the `openspec-propose` skill to initialize changes, dynamically fetching templates and context via `openspec instructions` to consolidate domain modeling conclusions.
 - **Apply**: Utilize AI to implement code and perform automated verification based on the specifications. Specifications can be revised at any time — phases are not locked.
 - **Sync**: Merge incremental spec changes into the master specification directory before archiving.
 - **Archive**: Move the change to `changes/archive/` via `openspec archive`, ensuring a single source of truth for domain knowledge.
@@ -204,6 +205,7 @@ Recommended learning order:
 8. **Practice v1.13.0 Workflow**: Read the [v1.13.0 Workflow Practice](docs-en/openspec-v1.13.0-workflow-practice.md), a change adding "order list query" that exercises the upgraded templates (explore spec inventory, propose context loading) and verifies `validate --report findings` catching 3 real spec issues on its first run. Artifacts in `openspec/changes/archive/2026-09-10-order-list-query/`.
 9. **Practice v1.14.3 Workflow**: Read the [v1.14.3 Workflow Practice](docs-en/openspec-v1.14.3-workflow-practice.md), which upgrades through v1.13.1–v1.14.3 and uses a "Python order detail lookup" change to verify `skip_specs: true`, `list --archived`, and the security hardening. Artifacts in `openspec/changes/archive/2026-10-19-python-order-get-by-id/`.
 10. **Practice v1.16.0 Workflow**: Read the [v1.16.0 Workflow Practice](docs-en/openspec-v1.16.0-workflow-practice.md), where the v1.15.0–v1.16.0 upgrade's scenario-step check exposed legacy Gherkin formatting debt, and a `skip_specs` change migrated 6 main specs / 195 step lines to the canonical list format. Artifacts in `openspec/changes/archive/2026-11-02-scenario-step-format-migration/`.
+11. **Practice v2.1.0 Workflow**: Read the [v2.1.0 Workflow Practice](docs-en/openspec-v2.1.0-workflow-practice.md), a cross-major-version upgrade (skills unified in `.agents/skills/`, `/opsx` commands removed) followed by implementing the payment capability via the skill workflow, closing the spec-code loop for all seven capabilities. Artifacts in `openspec/changes/archive/2026-11-18-payment-implementation/`.
 11. **Research**: Browse the specification files under `openspec/changes/archive/2025-01-27-v1-mvp/` to learn how a complete system's specifications are built from scratch.
 
 ---
@@ -212,7 +214,7 @@ Recommended learning order:
 
 To more efficiently implement OpenSpec specifications in real-world development, this project recommends pairing with a dedicated AI assistant skill.
 
-- **[OpenSpec Assistant](https://github.com/ForceInjection/awesome-skills/tree/main/skills/openspec-assistant)**: An AI skill designed specifically for executing OpenSpec Spec-Driven Development (SDD). It covers the complete lifecycle of intent alignment, specification generation, code implementation, and automated verification. It also supports multi-role collaboration among architects (writing and reviewing specs), developers (writing code), and QA engineers (writing tests), and natively supports the `/opsx` command system used in this project.
+- **[OpenSpec Assistant](https://github.com/ForceInjection/awesome-skills/tree/main/skills/openspec-assistant)**: An AI skill designed specifically for executing OpenSpec Spec-Driven Development (SDD). It covers the complete lifecycle of intent alignment, specification generation, code implementation, and automated verification. It also supports multi-role collaboration among architects (writing and reviewing specs), developers (writing code), and QA engineers (writing tests), and natively supports the OpenSpec skill system.
 
 ---
 

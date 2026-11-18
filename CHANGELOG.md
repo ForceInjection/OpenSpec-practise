@@ -2,6 +2,33 @@
 
 本项目跟随 OpenSpec（[Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec)）版本演进的实践记录。
 
+## v2.1.0 (2026-11-17)
+
+OpenSpec 进入 2.x：v1.16.1 与 v1.17.0 过渡，**v2.0.0 是首个 BREAKING 大版本**，v2.1.0 补全局技能。工作流本身（Explore → Propose → Apply → Archive）没有变化，变的是技能的安装位置与调用方式。
+
+- **v1.16.1** — delta 校验收紧：需求放在未识别的 delta 段落（如 `## DEPRECATED`）时 `validate` 失败、`archive` 拒绝，不再静默丢弃；闭合 `##` 标题与 telemetry 关闭下的版本检查修复
+- **v1.17.0** — `openspec update` 可从 0.12 以来的任意版本一次升到位；预告 `/opsx:*` 命令文件将在 2.0 移除，提供 `openspec config set delivery skills` 提前切换
+- **v2.0.0（BREAKING）** — 技能统一安装到 `.agents/skills/`，Claude Code 等不读该目录的工具得到**符号链接**；**`/opsx:*` 斜杠命令移除**（`/opsx:propose` → 技能 `openspec-propose`）；`openspec update` 清理旧版生成的命令文件与重复技能（改过的文件保留并列表）；Amazon Q 支持移除
+- **v2.1.0** — 技能可安装到全局（Vercel `skills` 安装器，需 Git + GitHub 访问）；`openspec update` 在交互模式下询问技能「留在项目内 / 切全局」，**CI 或 agent 环境（`OPEN_SPEC_INTERACTIVE=0`）不询问、就地刷新**；npm 安装 Node 门槛升至 **≥ 22.20.0**
+
+本仓库跟进：
+
+- CLI 升级至 2.1.0；`openspec update --dry-run` 预览 25 个文件变更后 `--force` 应用
+- 布局迁移实测：`.claude/commands/opsx/`（6 个命令文件）被移除；`.agents/skills/openspec-*/SKILL.md` 成为唯一真身；`.claude/skills/openspec-*` 变为相对符号链接——非交互模式未询问 scope，技能留在项目内，`config.yaml` 未变
+- 升级后回归：`validate --specs --strict` 7/7、findings 清零、归档 7/7、Node 18/18、Python 7/7 全绿
+- Node v26 ≥ 22.20，npm 安装不受影响；独立二进制无 Node 要求
+
+### 完整工作流实践：payment-implementation
+
+用 2.x 技能工作流（无 `/opsx` 命令）补齐 7 个能力中最后一个「spec 完整、代码为零」的缺口：
+
+1. **Propose**（技能 `openspec-propose`）— `payment` 已有 2 个需求、4 个场景的完整契约，声明 `skip_specs: true` 做纯实现对齐；5 个设计决策（方法放 `OrderService`、重复支付按幂等成功、状态机集中在服务层等）
+2. **Apply** — Node `OrderService.payOrder` + `POST /api/payments/:orderId` 路由 + `NOT_FOUND` → 404 映射；Python `pay_order` + `POST /api/payments/{id}`；双实现各补支付 E2E（成功 → PAID、重复支付幂等 200、404）
+3. **Validate** — 对照 spec 4 场景逐条核对；change 校验通过；`--strict` 7/7；**Node 22/22、Python 8/8 全绿**
+4. **Archive** — 归档至 `changes/archive/2026-11-18-payment-implementation/`，8 个归档 change 全部通过
+
+至此 7 个能力的 spec-code 缺口全部闭合，仅剩错误响应格式差异一项已知债务。详细复盘见 [v2.1.0 工作流实践文档](docs/openspec-v2.1.0-workflow-practice.md)。
+
 ## v1.16.0 (2026-10-30)
 
 OpenSpec v1.15.0 与 v1.16.0 相继发布。v1.15.0 主打**安装与升级体验**，v1.16.0 带来一个 BREAKING 变更和新的 spec 校验：

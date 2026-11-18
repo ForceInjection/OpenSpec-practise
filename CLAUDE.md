@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**OpenSpec Practise** is a learning/demonstration repository for Spec-Driven Development (SDD) using **OpenSpec v1.16.0**. A minimal e-commerce system is implemented twice — Node.js (v20+, zero npm dependencies, native `http`) and Python (FastAPI + Pydantic) — from the same OpenSpec specifications. The point is to demonstrate the full chain: intent → spec → code, with humans and AI sharing one source of truth.
+**OpenSpec Practise** is a learning/demonstration repository for Spec-Driven Development (SDD) using **OpenSpec v2.1.0**. A minimal e-commerce system is implemented twice — Node.js (v20+, zero npm dependencies, native `http`) and Python (FastAPI + Pydantic) — from the same OpenSpec specifications. The point is to demonstrate the full chain: intent → spec → code, with humans and AI sharing one source of truth.
 
 Main specs cover 7 capabilities: `cart-management`, `catalog-management`, `domain-model`, `error-handling`, `order-management`, `payment`, and `product-query`. All changes are archived under `openspec/changes/archive/`; there is currently no active change.
 
@@ -16,14 +16,15 @@ openspec/                      # Root OpenSpec project (NOT under examples/)
   specs/                       # Main specs — the single source of truth
   changes/                     # Active changes (currently empty)
   changes/archive/             # Archived changes: YYYY-MM-DD-<name>/
-.claude/
-  commands/opsx/               # /opsx:explore|propose|update|apply|sync|archive
-  skills/                      # openspec-* skills backing those commands
+.agents/skills/                # OpenSpec 2.x skills — the single real copy (openspec-*)
+.claude/skills/                # Symlinks into .agents/skills/ for Claude Code
+                               # (.claude/commands/opsx/ was removed in OpenSpec 2.0)
 examples/
   ecommerce-mini/              # Node.js implementation
   ecommerce-mini-python/       # Python implementation
 docs/                          # Chinese documentation (manuals, guides, practice write-ups)
 docs-en/                       # English mirrors of docs/
+docs/assets/                   # Figures used by the docs (with a provenance README)
 README.md / README-en.md       # Bilingual project overview
 CHANGELOG.md                   # Per-OpenSpec-version upgrade and practice history
 ```
@@ -33,7 +34,7 @@ CHANGELOG.md                   # Per-OpenSpec-version upgrade and practice histo
 ### Node.js (`examples/ecommerce-mini/`)
 
 ```bash
-npm test                                              # all 18 tests (unit + integration + performance)
+npm test                                              # all 22 tests (unit + integration + performance)
 node --test __tests__/unit.spec.js                    # one suite
 node --test --test-name-pattern="订单列表" __tests__/unit.spec.js   # one test by name
 node --test src/domain/logic.spec.js                  # standalone domain test (NOT part of npm test)
@@ -50,7 +51,7 @@ Prod server notes:
 ### Python (`examples/ecommerce-mini-python/`)
 
 ```bash
-.venv/bin/python -m pytest tests -q                              # all 7 tests
+.venv/bin/python -m pytest tests -q                              # all 8 tests
 .venv/bin/python -m pytest tests/test_smoke.py::test_smoke_flow  # one test
 .venv/bin/python -m pytest tests -k cart                         # tests matching a keyword
 .venv/bin/python -m uvicorn src.api.server:app --reload          # dev server, port 8000
@@ -76,22 +77,22 @@ openspec update --force                                  # refresh .claude comma
 openspec version --check                                 # installed version vs latest
 ```
 
-## SDD Workflow (OpenSpec v1.16.0)
+## SDD Workflow (OpenSpec v2.1.0)
 
-Slash commands live in `.claude/commands/opsx/` and are backed by matching skills. The default `core` profile installs the six commands below; `new`, `continue`, `ff`, `bulk-archive`, `verify`, and `onboard` are optional workflows enabled via `openspec config profile` followed by `openspec update`:
+Skills live in `.agents/skills/` (the single real copy) with `.claude/skills/` symlinking to them for Claude Code. OpenSpec 2.0 removed the `/opsx:*` slash commands — invoke the skills by name (`openspec-propose`, …) or by natural language. The default `core` profile installs the six skills below; `new`, `continue`, `ff`, `bulk-archive`, `verify`, and `onboard` are optional workflows enabled via `openspec config profile` followed by `openspec update`:
 
-| Command                | Purpose                                                                                            |
-| ---------------------- | -------------------------------------------------------------------------------------------------- |
-| `/opsx:explore`        | Thinking partner: investigate code/specs and clarify requirements before any artifact exists.      |
-| `/opsx:propose <name>` | Create a change and generate `proposal.md`, `design.md`, `specs/`, and `tasks.md`.                 |
-| `/opsx:update`         | Revise existing planning artifacts and keep them coherent. Never edits code.                       |
-| `/opsx:apply`          | Implement tasks, marking `- [ ]` → `- [x]`.                                                        |
-| `/opsx:sync`           | Merge delta specs into main specs without archiving (optional standalone operation).               |
-| `/opsx:archive`        | Validate/complete, merge delta specs, and move the change to `changes/archive/YYYY-MM-DD-<name>/`. |
+| Skill                          | Purpose                                                                                            |
+| ------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `openspec-explore`             | Thinking partner: investigate code/specs and clarify requirements before any artifact exists.      |
+| `openspec-propose`             | Create a change and generate `proposal.md`, `design.md`, `specs/`, and `tasks.md`.                 |
+| `openspec-update-change`       | Revise existing planning artifacts and keep them coherent. Never edits code.                       |
+| `openspec-apply-change`        | Implement tasks, marking `- [ ]` → `- [x]`.                                                        |
+| `openspec-sync-specs`          | Merge delta specs into main specs without archiving (optional standalone operation).               |
+| `openspec-archive-change`      | Validate/complete, merge delta specs, and move the change to `changes/archive/YYYY-MM-DD-<name>/`. |
 
 Important workflow semantics:
 
-- Since v1.11.0, `openspec archive` performs the spec merge itself; `/opsx:sync` is only needed to publish spec changes while keeping a change active.
+- Since v1.11.0, `openspec archive` performs the spec merge itself; the `openspec-sync-specs` skill is only needed to publish spec changes while keeping a change active.
 - `openspec list` does not list capabilities; use `openspec list --specs`.
 - Delta specs mirror main capability paths under `specs/<capability>/spec.md` and use `## ADDED Requirements`, `## MODIFIED Requirements`, `## REMOVED Requirements`, or `## RENAMED Requirements`.
 - A MODIFIED requirement must restate the full requirement and every surviving scenario; validation rejects a delta that drops a scenario. Scenario-level renames are not supported.
@@ -102,7 +103,7 @@ Important workflow semantics:
 From `openspec/config.yaml`:
 
 - Scenarios use Given/When/Then (Gherkin) written as list items with bold uppercase keywords (`- **GIVEN**`, `- **WHEN**`, `- **THEN**`, `- **AND**`) — the v1.16.0 scenario-step check only recognizes this form; bare `Given/When/Then` lines fail under `--strict`. Normative requirement language uses SHALL or MUST.
-- The CLI's npm install requires Node ≥ 22.12.0 (v1.16.0 breaking change); the standalone binary has no Node requirement. The examples themselves still run on Node v20+.
+- The CLI's npm install requires Node ≥ 22.20.0 (v2.1.0 floor, raised from 22.12 in v1.16.0); the standalone binary has no Node requirement. The examples themselves still run on Node v20+.
 - Every requirement includes `**Priority**: P0/P1/P2` and a `**Rationale**:`.
 - Proposals name affected implementations (Node.js / Python / both) and map capabilities to spec folder names.
 - Designs include architecture diagrams (Mermaid or ASCII) and decisions with alternatives.
@@ -139,9 +140,8 @@ Key invariants:
 
 Verify before assuming parity:
 
-- The `payment` capability is fully specified but has no implementation in either language.
 - The Node dev server fixes cart operations to `user_dev` and defaults order creation to `user_dev`; integration tests must use that identity or make relative assertions. Python cart endpoints default to `user_dev` but accept an explicit user ID.
-- The Node prod server lags the dev server in route coverage (see the commands section above).
+- The Node prod server lags the dev server in route coverage (see the commands section above); payment lands in dev and Python only.
 
 ## Repository Conventions
 

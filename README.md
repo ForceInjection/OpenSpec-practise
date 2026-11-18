@@ -22,8 +22,8 @@
 
 通过 `openspec init --tools claude` 生成的 AI 协作命令与技能，位于 `.claude/`。
 
-- **`.claude/commands/opsx/`**: 斜杠命令定义（`/opsx:explore`、`/opsx:propose`、`/opsx:update`、`/opsx:apply`、`/opsx:sync`、`/opsx:archive`）。
-- **`.claude/skills/`**: 对应的 AI 技能文件（SKILL.md），定义每步操作的详细指令。
+- **`.agents/skills/`**: OpenSpec 2.x 起技能的唯一真身（`openspec-explore`、`openspec-propose`、`openspec-update-change`、`openspec-apply-change`、`openspec-sync-specs`、`openspec-archive-change`）。
+- **`.claude/skills/`**: 指向 `.agents/skills/` 的符号链接，Claude Code 由此读取技能（2.0 起 `/opsx:*` 斜杠命令已移除，调用方式为技能名或自然语言）。
 
 ### 2. 文档
 
@@ -93,14 +93,15 @@ SDD 工作流的完整规范文件，统一存放于 `openspec/`。
 
 ## 核心特性
 
-本项目基于 **OpenSpec v1.16.0**，演示了以下核心特性：
+本项目基于 **OpenSpec v2.1.0**，演示了以下核心特性：
 
-- **探索优先（Explore First）**: `/opsx:explore` 作为思考伙伴，在编写任何规范或代码之前先调查代码库、权衡选项、澄清需求——零成本的低风险探索。
+- **探索优先（Explore First）**: `openspec-explore` 技能作为思考伙伴，在编写任何规范或代码之前先调查代码库、权衡选项、澄清需求——零成本的低风险探索。
 - **规范驱动开发**: 先定义规范，再编写代码，确保 AI 与人对需求达成一致。
 - **流式迭代（Fluid Workflow）**: Propose → Apply → Archive 各阶段不再锁死。可随时回溯修改规范，explore 可穿插在任意阶段。
 - **聚焦评审（Show --diff）**: `openspec show <change> --diff` 让 delta 评审只看真正变化的行——MODIFIED 需求虽须复述全部保留场景，diff 却只渲染实际变更。
 - **质量守护（Findings 报告）**: `openspec validate --report findings` 输出聚焦的 warnings/errors 报告，配合 delta 解析器的防静默失败修复，让 spec 漂移更早被发现。
-- **边界收紧（v1.13.1–v1.16.0）**: 配置注入、路径逃逸与符号链接防护，`openspec list --archived/--all`、`openspec version --check`、`update --dry-run`，以及用 `skip_specs` 完成纯实现对齐与 spec 格式迁移的实践。
+- **边界收紧与 2.x 迁移（v1.13.1–v2.1.0）**: 配置注入、路径逃逸与符号链接防护，`update --dry-run`，技能统一到 `.agents/skills/`（2.0 移除 `/opsx` 命令），以及用 `skip_specs` 完成纯实现对齐与 spec 格式迁移的实践。
+- **订单闭环**: 「下单 → 查询 → 支付」全链路双实现覆盖，支付状态机 PENDING_PAYMENT → PAID，重复支付幂等成功。
 - **双语言实现**: 使用相同的规范驱动 Node.js (零依赖) 和 Python (FastAPI + Pydantic) 两套实现。
 - **完整测试覆盖**: 单元测试、集成测试、性能测试。
 - **Stores (Beta)**: 支持跨仓库规划。将规划集中在一个独立的 store 仓库中，多个代码仓库通过 `references` 引用只读上下文。
@@ -145,8 +146,8 @@ context: |
 
 OpenSpec v1.5.0 的工作流与 DDD 的迭代建模高度契合，特别强调探索优先和存量优先的重构能力。
 
-- **探索（Explore）**：使用 `/opsx:explore` 以零成本调查代码库、对比方案、澄清需求。DDD 的「战略风暴」可在探索阶段自然展开。
-- **提案（Propose）**：使用 `/opsx:propose` 初始化变更，通过 `openspec instructions` 动态获取模板和上下文，沉淀领域建模结论。
+- **探索（Explore）**：使用 `openspec-explore` 技能以零成本调查代码库、对比方案、澄清需求。DDD 的「战略风暴」可在探索阶段自然展开。
+- **提案（Propose）**：使用 `openspec-propose` 技能初始化变更，通过 `openspec instructions` 动态获取模板和上下文，沉淀领域建模结论。
 - **实施（Apply）**：利用 AI 依据规范进行代码实现与自动化验证，可随时回溯修改规范，不锁死阶段。
 - **同步（Sync）**：归档前将增量 spec 变更合并至主规范目录。
 - **归档（Archive）**：通过 `openspec archive` 将变更移至 `changes/archive/`，确保领域知识的单一事实来源。
@@ -204,6 +205,7 @@ python -m uvicorn src.api.server:app --reload
 8. **实践 v1.13.0 工作流**: 阅读 [v1.13.0 工作流实践文档](docs/openspec-v1.13.0-workflow-practice.md)，这是用「订单列表查询」演示升级后新模板（explore spec 清单盘点、propose context 加载）的实践，并验证 `validate --report findings` 首跑即发现 3 个真实 spec 问题。产物见 `openspec/changes/archive/2026-09-10-order-list-query/`。
 9. **实践 v1.14.3 工作流**: 阅读 [v1.14.3 工作流实践文档](docs/openspec-v1.14.3-workflow-practice.md)，这是升级 v1.13.1–v1.14.3 后用「Python 订单详情查询」验证 `skip_specs: true`、`list --archived` 与安全加固的实践。产物见 `openspec/changes/archive/2026-10-19-python-order-get-by-id/`。
 10. **实践 v1.16.0 工作流**: 阅读 [v1.16.0 工作流实践文档](docs/openspec-v1.16.0-workflow-practice.md)，这是升级 v1.15.0–v1.16.0 后由 Scenario 步骤检查暴露历史 Gherkin 格式欠账，并用 `skip_specs` 完成 6 个主 spec、195 个步骤行格式迁移的实践。产物见 `openspec/changes/archive/2026-11-02-scenario-step-format-migration/`。
+11. **实践 v2.1.0 工作流**: 阅读 [v2.1.0 工作流实践文档](docs/openspec-v2.1.0-workflow-practice.md)，这是跨大版本升级（技能统一到 `.agents/skills/`、`/opsx` 命令移除）后，用技能工作流补齐 payment 能力实现、达成 7 个能力 spec-code 全闭环的实践。产物见 `openspec/changes/archive/2026-11-18-payment-implementation/`。
 11. **研究**: 查看 `openspec/changes/archive/2025-01-27-v1-mvp/` 下的 MVP 规范文件，了解一个完整系统的规范如何从零构建。
 
 ---
@@ -212,7 +214,7 @@ python -m uvicorn src.api.server:app --reload
 
 为了在实际开发中更高效地落地 OpenSpec 规范，本项目推荐搭配专用的 AI 助手技能进行协作。
 
-- **[OpenSpec Assistant](https://github.com/ForceInjection/awesome-skills/tree/main/skills/openspec-assistant)**: 这是一个专为执行 OpenSpec 规范驱动开发 (SDD) 而设计的 AI 技能。它涵盖了意图对齐、规范生成、代码实现与自动化验证的完整生命周期。同时支持架构师 (编写与评审 Spec) 、开发者 (编写代码) 和 QA (编写测试) 等多角色协同工作，并原生支持本项目的 `/opsx` 指令体系。
+- **[OpenSpec Assistant](https://github.com/ForceInjection/awesome-skills/tree/main/skills/openspec-assistant)**: 这是一个专为执行 OpenSpec 规范驱动开发 (SDD) 而设计的 AI 技能。它涵盖了意图对齐、规范生成、代码实现与自动化验证的完整生命周期。同时支持架构师 (编写与评审 Spec) 、开发者 (编写代码) 和 QA (编写测试) 等多角色协同工作，并原生支持 OpenSpec 技能体系。
 
 ---
 
